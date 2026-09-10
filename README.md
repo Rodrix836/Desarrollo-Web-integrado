@@ -2,6 +2,7 @@
 
 **Plataforma web para promover y gestionar el reciclaje de residuos.** Esta primera versión permite registrar, consultar, editar y eliminar residuos mediante una API REST y páginas sencillas de Thymeleaf, HTML y CSS, sin JavaScript.
 
+
 El proyecto está preparado para una exposición inicial de Desarrollo Web Integrado y para que otros integrantes continúen trabajando. Conserva el modelo y las capas de la base anterior. La interfaz y la persistencia en un archivo JSON se incorporan por solicitud explícita para esta presentación; no se presentan como exigencias del sílabo de la unidad 1.
 
 ReCiclo no es una tienda: no incluye compras, ventas, pagos ni marketplace. Tampoco implementa usuarios, autenticación, bases de datos, estadísticas ni otros módulos avanzados.
