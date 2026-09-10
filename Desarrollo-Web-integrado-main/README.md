@@ -2,10 +2,50 @@
 
 **Plataforma web para promover y gestionar el reciclaje de residuos.** Esta primera versión permite registrar, consultar, editar y eliminar residuos mediante una API REST y páginas sencillas de Thymeleaf, HTML y CSS, sin JavaScript.
 
+El proyecto está preparado para una exposición inicial de Desarrollo Web Integrado y para que otros integrantes continúen trabajando. Conserva el modelo y las capas de la base anterior. La interfaz y la persistencia en un archivo JSON se incorporan por solicitud explícita para esta presentación; no se presentan como exigencias del sílabo de la unidad 1. Además, se incorporó autenticación web por roles para separar el módulo de Administración del módulo Empresa.
 
-El proyecto está preparado para una exposición inicial de Desarrollo Web Integrado y para que otros integrantes continúen trabajando. Conserva el modelo y las capas de la base anterior. La interfaz y la persistencia en un archivo JSON se incorporan por solicitud explícita para esta presentación; no se presentan como exigencias del sílabo de la unidad 1.
+ReCiclo no es una tienda: no incluye compras, ventas, pagos ni marketplace. La versión actual sí incluye usuarios de demostración, autenticación por sesión y autorización por roles; la persistencia de residuos continúa realizándose en JSON.
 
-ReCiclo no es una tienda: no incluye compras, ventas, pagos ni marketplace. Tampoco implementa usuarios, autenticación, bases de datos, estadísticas ni otros módulos avanzados.
+
+## Inicio de sesión y separación por roles
+
+La aplicación incorpora un login para separar los dos perfiles principales:
+
+| Perfil | Usuario | Contraseña | Módulo |
+| --- | --- | --- | --- |
+| Administrador | `admin` | `admin123` | `/admin` y `/residuos/**` |
+| Empresa | `empresa` | `empresa123` | `/empresa/**` |
+
+El flujo es:
+
+```text
+/login
+   ↓
+AuthWebController
+   ↓
+AuthService → PasswordEncoder (BCrypt)
+   ↓
+HttpSession: usuario + rol + empresa
+   ↓
+AccesoInterceptor
+   ├── ADMIN  → /admin y /residuos/**
+   └── EMPRESA → /empresa/**
+```
+
+Un usuario sin sesión es enviado al login. Un usuario autenticado que intenta entrar al módulo de otro rol recibe una respuesta de acceso denegado. El módulo Empresa ya no permite elegir arbitrariamente otra empresa mediante un parámetro de URL: utiliza la empresa asociada a la sesión.
+
+> Las credenciales incluidas son únicamente para demostración académica. En un sistema real deberían almacenarse en una base de datos y gestionarse mediante un mecanismo de autenticación completo.
+
+## Relación con la Unidad 1
+
+| Semana / sesión | Tema del sílabo | Evidencia en ReCiclo |
+| --- | --- | --- |
+| 1 / 1 | Introducción a Spring Boot, conceptos básicos, arquitectura, estructura y entorno | `pom.xml`, `ReCicloApplication`, configuración, estructura `controller/service/repository/model`, ejecución con Maven |
+| 2 / 2 | Endpoints, controladores y Dependency Injection | `RegistroResiduoController`, `ResiduoWebController`, `EmpresaWebController`, `AuthWebController`; inyección por constructor |
+| 3 / 3 | TDD e integración de TDD en Spring | Pruebas JUnit/Spring Boot en `src/test`, pruebas de controller, service, repository y autenticación |
+| 4 / 4 | API REST, herramientas de prueba, métodos HTTP y usos | `GET`, `POST`, `PUT`, `DELETE` en `/api/residuos`; ejemplos JSON en `docs/` y guía de pruebas con `curl`/Postman |
+
+Con esto, los cuatro temas de la imagen están representados en el proyecto. La autenticación y separación por roles es un complemento funcional adicional a la Unidad 1.
 
 ## Requisitos y ejecución
 
@@ -49,7 +89,7 @@ mvn test
 
 ```text
 pom.xml
-docs/                              # Ejemplos JSON para peticiones HTTP
+docs/                              # Ejemplos JSON y guía de pruebas HTTP
 src/main/java/pe/reciclo/
   ReCicloApplication.java
   controller/                      # API REST y páginas/formularios
@@ -74,7 +114,12 @@ El flujo es `Cliente HTTP → Controller → Service → Repository → archivo 
 
 | Página | Ruta |
 | --- | --- |
-| Inicio, explicación y botones principales | `/` |
+| Inicio, explicación y acceso al sistema | `/` |
+| Login | `/login` |
+| Cerrar sesión | `/logout` |
+| Acceso denegado | `/acceso-denegado` |
+| Panel administrativo | `/admin` |
+| Catálogo de empresa | `/empresa` |
 | Tabla de residuos | `/residuos` |
 | Formulario de registro | `/residuos/nuevo` |
 | Detalle | `/residuos/{id}` |
