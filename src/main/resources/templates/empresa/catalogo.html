@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: head('Materiales para trueque | ReCiclo')}"></head>
+<body>
+<header th:replace="~{fragmentos :: cabeceraEmpresa(${empresaActual})}"></header>
+<main id="contenido" class="contenedor contenido">
+    <p class="etiqueta">Trueque entre empresas</p>
+    <h1>Materiales disponibles</h1>
+    <p class="subtitulo">Encuentra materiales que otras empresas ya no necesitan y conoce qué les serviría a cambio.</p>
+    <form class="selector-empresa" method="get" th:action="@{/empresa}">
+        <div>
+            <label for="empresaActual">Empresa que representas</label>
+            <select id="empresaActual" name="empresa">
+                <option th:each="empresa : ${empresas}" th:value="${empresa}" th:text="${empresa}" th:selected="${empresa == empresaActual}"></option>
+            </select>
+        </div>
+        <button class="boton secundario" type="submit">Ver disponibilidad</button>
+        <p class="ayuda">Selector de demostración. Se muestran materiales de otras empresas.</p>
+    </form>
+    <section class="panel vacio" th:if="${#lists.isEmpty(ofertas)}">
+        <h2>No hay materiales disponibles por ahora</h2>
+        <p>Cuando otras empresas tengan materiales disponibles, podrás consultarlos aquí.</p>
+    </section>
+    <div class="catalogo" th:unless="${#lists.isEmpty(ofertas)}">
+        <article class="panel oferta" th:each="residuo : ${ofertas}">
+            <p class="empresa-oferta" th:text="${residuo.empresa}"></p>
+            <h2 th:text="${residuo.tipoResiduo.etiqueta}"></h2>
+            <p class="cantidad-oferta" th:text="${residuo.cantidad + ' ' + residuo.unidadMedida + ' disponibles'}"></p>
+            <p th:text="${#strings.isEmpty(residuo.descripcion) ? 'Consulta los detalles de este material.' : residuo.descripcion}"></p>
+            <div class="intercambio">
+                <strong>Busca a cambio</strong>
+                <p th:text="${#strings.isEmpty(residuo.intercambioPor) ? 'Sin preferencia indicada.' : residuo.intercambioPor}"></p>
+            </div>
+            <a class="boton secundario" th:href="@{/empresa/materiales/{id}(id=${residuo.id},empresa=${empresaActual})}">Ver detalles para trueque</a>
+        </article>
+    </div>
+</main>
+<footer th:replace="~{fragmentos :: pie}"></footer>
+</body>
+</html>

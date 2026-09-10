@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: head('Inicio | ReCiclo')}"></head>
+<body>
+<header th:replace="~{fragmentos :: cabecera('inicio')}"></header>
+<main id="contenido" class="contenedor contenido">
+    <section class="panel presentacion" aria-labelledby="titulo">
+        <p class="etiqueta">Reciclaje y trueque entre empresas</p>
+        <h1 id="titulo">ReCiclo</h1>
+        <p class="introduccion">Plataforma web para promover y gestionar el reciclaje de residuos.</p>
+        <p class="explicacion">Lo que una empresa ya no necesita puede ser útil para otra.
+            Consulta materiales disponibles para trueque o administra los registros del proyecto.</p>
+        <div class="accesos">
+            <section class="acceso">
+                <h2>Empresa</h2>
+                <p>Explora materiales de otras empresas y conoce qué buscan a cambio.</p>
+                <a class="boton" th:href="@{/empresa}">Ver materiales disponibles</a>
+            </section>
+            <section class="acceso">
+                <h2>Administración</h2>
+                <p>Registra materiales, asigna su empresa y actualiza la disponibilidad.</p>
+                <div class="acciones">
+                    <a class="boton secundario" th:href="@{/admin}">Ver residuos</a>
+                    <a th:href="@{/residuos/nuevo}">Registrar residuo</a>
+                </div>
+            </section>
+        </div>
+    </section>
+</main>
+<footer th:replace="~{fragmentos :: pie}"></footer>
+</body>
+</html>
