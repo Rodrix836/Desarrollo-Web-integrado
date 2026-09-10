@@ -1,6 +1,9 @@
 package pe.reciclo.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 public enum TipoResiduo {
+
     PLASTICO("Plástico"),
     PAPEL_CARTON("Papel / Cartón"),
     VIDRIO("Vidrio"),
@@ -16,5 +19,22 @@ public enum TipoResiduo {
 
     public String getEtiqueta() {
         return etiqueta;
+    }
+
+    @JsonCreator
+    public static TipoResiduo desdeJson(String valor) {
+        if (valor == null) {
+            return null;
+        }
+
+        for (TipoResiduo tipo : values()) {
+            if (tipo.name().equals(valor)) {
+                return tipo;
+            }
+        }
+
+        throw new IllegalArgumentException(
+                "Tipo de residuo no válido: " + valor
+        );
     }
 }

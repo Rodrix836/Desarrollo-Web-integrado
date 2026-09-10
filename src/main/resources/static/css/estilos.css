@@ -87,6 +87,11 @@ th { font-size: 14px; font-weight: 600; background: var(--verde-claro); }
 .vacio { text-align: center; padding: 32px; }
 .vacio p:last-child { margin-bottom: 0; }
 .formulario { max-width: 680px; }
+.formulario-acceso { max-width: 520px; margin-inline: auto; }
+.formulario-acceso form { display: grid; gap: 20px; }
+.formulario-acceso .ayuda { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--borde); }
+.formulario-acceso .error { color: var(--error); background: var(--error-fondo); }
+
 .campos { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
 .campo-completo { grid-column: 1 / -1; }
 label { display: block; font-weight: 600; margin-bottom: 8px; }

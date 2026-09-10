@@ -1,32 +1,79 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head th:replace="~{fragmentos :: head('Inicio | ReCiclo')}"></head>
+
 <body>
-<header th:replace="~{fragmentos :: cabecera('inicio')}"></header>
-<main id="contenido" class="contenedor contenido">
-    <section class="panel presentacion" aria-labelledby="titulo">
-        <p class="etiqueta">Reciclaje y trueque entre empresas</p>
-        <h1 id="titulo">ReCiclo</h1>
-        <p class="introduccion">Plataforma web para promover y gestionar el reciclaje de residuos.</p>
-        <p class="explicacion">Lo que una empresa ya no necesita puede ser útil para otra.
-            Consulta materiales disponibles para trueque o administra los registros del proyecto.</p>
-        <div class="accesos">
-            <section class="acceso">
-                <h2>Empresa</h2>
-                <p>Explora materiales de otras empresas y conoce qué buscan a cambio.</p>
-                <a class="boton" th:href="@{/empresa}">Ver materiales disponibles</a>
-            </section>
-            <section class="acceso">
-                <h2>Administración</h2>
-                <p>Registra materiales, asigna su empresa y actualiza la disponibilidad.</p>
-                <div class="acciones">
-                    <a class="boton secundario" th:href="@{/admin}">Ver residuos</a>
-                    <a th:href="@{/residuos/nuevo}">Registrar residuo</a>
-                </div>
-            </section>
-        </div>
-    </section>
-</main>
-<footer th:replace="~{fragmentos :: pie}"></footer>
+    <header th:replace="~{fragmentos :: cabecera('inicio')}"></header>
+    <main id="contenido" class="contenedor contenido">
+        <section class="panel presentacion" aria-labelledby="titulo">
+            <p class="etiqueta">Reciclaje y trueque entre empresas</p>
+            <h1 id="titulo">ReCiclo</h1>
+            <p class="introduccion">Plataforma web para promover y gestionar el reciclaje de residuos.</p>
+            <p class="explicacion">Lo que una empresa ya no necesita puede ser útil para otra.</p>
+
+            <div th:if="${session.usuario == null}" class="accesos">
+                <section class="acceso">
+                    <h2>Acceso al sistema</h2>
+                    <p>
+                        Inicia sesión para que ReCiclo identifique
+                        si eres administrador o empresa.
+                    </p>
+
+                    <a class="boton" th:href="@{/login}">
+                        Iniciar sesión
+                    </a>
+                </section>
+
+                <section class="acceso">
+                    <h2>Gestión de residuos</h2>
+                    <p>
+                        Consulta y registra residuos reciclables.
+                        Estas funciones requieren autenticación.
+                    </p>
+
+                    <a class="boton secundario" th:href="@{/login}">
+                        Ver residuos
+                    </a>
+
+                    <a class="boton secundario" th:href="@{/login}">
+                        Registrar residuo
+                    </a>
+                </section>
+            </div>
+
+            <div th:if="${session.usuario != null}" class="accesos">
+
+                <section class="acceso" th:if="${session.usuario.rol == T(pe.reciclo.model.Rol).ADMIN}">
+                    <h2>Administración</h2>
+
+                    <p>
+                        Registra, consulta, actualiza y elimina
+                        materiales del sistema.
+                    </p>
+
+                    <a class="boton" th:href="@{/admin}">
+                        Gestionar residuos
+                    </a>
+                </section>
+
+                <section class="acceso" th:if="${session.usuario.rol == T(pe.reciclo.model.Rol).EMPRESA}">
+                    <h2>Empresa</h2>
+
+                    <p>
+                        Explora materiales de otras empresas y
+                        conoce qué buscan a cambio.
+                    </p>
+
+                    <a class="boton" th:href="@{/empresa}">
+                        Ver materiales disponibles
+                    </a>
+                </section>
+
+            </div>
+        </section>
+    </main>
+    <footer th:replace="~{fragmentos :: pie}"></footer>
 </body>
+
 </html>
