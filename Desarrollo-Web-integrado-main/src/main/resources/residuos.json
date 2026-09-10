@@ -1,0 +1,35 @@
+[
+  {
+    "id": 1,
+    "tipoResiduo": "PLASTICO",
+    "cantidad": 2,
+    "unidadMedida": "kg",
+    "fecha": "2026-09-10",
+    "descripcion": "Botellas de plástico limpias para reciclar.",
+    "empresa": "EcoEnvases",
+    "intercambioPor": "Papel o cartón limpio",
+    "disponible": true
+  },
+  {
+    "id": 2,
+    "tipoResiduo": "PAPEL_CARTON",
+    "cantidad": 5,
+    "unidadMedida": "kg",
+    "fecha": "2026-09-10",
+    "descripcion": "Cajas de cartón secas y dobladas.",
+    "empresa": "Papelera Andina",
+    "intercambioPor": "Envases de vidrio o plástico reutilizable",
+    "disponible": true
+  },
+  {
+    "id": 3,
+    "tipoResiduo": "VIDRIO",
+    "cantidad": 3,
+    "unidadMedida": "kg",
+    "fecha": "2026-09-10",
+    "descripcion": "Frascos de vidrio limpios y sin tapas.",
+    "empresa": "Vidrios del Sur",
+    "intercambioPor": "Cartón para embalaje",
+    "disponible": true
+  }
+]
