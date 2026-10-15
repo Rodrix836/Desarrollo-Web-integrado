@@ -1,38 +1,31 @@
 package pe.reciclo.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.validation.Validation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import pe.reciclo.model.RegistroResiduo;
+import pe.reciclo.model.RegistroResiduoEntity;
 import pe.reciclo.model.TipoResiduo;
-import pe.reciclo.repository.RegistroResiduoRepository;
+import pe.reciclo.repository.RegistroResiduoJpaRepository;
 
 import java.math.BigDecimal;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+@SpringBootTest
 class RegistroResiduoServiceTest {
 
-    @TempDir
-    Path directorio;
-
+    @Autowired
     private RegistroResiduoService service;
+    @Autowired
+    private RegistroResiduoJpaRepository repository;
 
     @BeforeEach
-    void preparar() throws IOException {
-        Path archivo = directorio.resolve("residuos.json");
-        Files.writeString(archivo, "[]");
-        try (var factory = Validation.buildDefaultValidatorFactory()) {
-            service = new RegistroResiduoService(new RegistroResiduoRepository(
-                    new ObjectMapper().findAndRegisterModules(), archivo.toString(), factory.getValidator()));
-        }
+    void preparar() {
+        repository.deleteAllInBatch();
     }
 
     @Test
@@ -43,7 +36,7 @@ class RegistroResiduoServiceTest {
         var creado = service.crear(entrada);
 
         assertThat(creado).isNotNull();
-        assertThat(creado.id()).isEqualTo(1L);
+        assertThat(creado.id()).isPositive().isNotEqualTo(999L);
         assertThat(creado.tipoResiduo()).isEqualTo(TipoResiduo.PLASTICO);
         assertThat(creado.cantidad()).isEqualByComparingTo("2.5");
         assertThat(creado.unidadMedida()).isEqualTo("kg");
@@ -114,6 +107,21 @@ class RegistroResiduoServiceTest {
     void eliminarInexistenteInformaLaAusencia() {
         assertThatThrownBy(() -> service.eliminar(999))
                 .isInstanceOf(RegistroNoEncontradoException.class);
+    }
+
+    @Test
+    void crudLeeYEscribeLaMismaBaseDelRepositorioJpa() {
+        var insertado = repository.save(new RegistroResiduoEntity(entrada())).toRegistroResiduo();
+        assertThat(service.consultar(insertado.id())).isEqualTo(insertado);
+        assertThat(service.listar()).containsExactly(insertado);
+
+        var actualizado = service.actualizar(insertado.id(), oferta("Empresa en H2", true));
+        assertThat(repository.findById(insertado.id()).orElseThrow().toRegistroResiduo())
+                .isEqualTo(actualizado);
+
+        service.eliminar(insertado.id());
+        assertThat(repository.existsById(insertado.id())).isFalse();
+        assertThat(repository.count()).isZero();
     }
 
     @Test

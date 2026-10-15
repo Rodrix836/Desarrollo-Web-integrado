@@ -5,15 +5,18 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-/** Copia temporal para consultar mediante JPQL los registros del repositorio existente. */
+/** Entidad persistente compartida por el CRUD y las consultas JPQL. */
 @Entity
 public class RegistroResiduoEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Enumerated(EnumType.STRING)
     private TipoResiduo tipoResiduo;
@@ -35,7 +38,10 @@ public class RegistroResiduoEntity {
     }
 
     public RegistroResiduoEntity(RegistroResiduo registro) {
-        id = registro.id();
+        actualizarDesde(registro);
+    }
+
+    public void actualizarDesde(RegistroResiduo registro) {
         tipoResiduo = registro.tipoResiduo();
         cantidad = registro.cantidad();
         unidadMedida = registro.unidadMedida();
