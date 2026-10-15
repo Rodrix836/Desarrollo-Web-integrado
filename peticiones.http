@@ -55,3 +55,64 @@ Content-Type: application/json
   "cantidadKg": 10.5,
   "fecha": "2026-10-15"
 }
+
+
+###############################################
+### CASOS QUE DEBEN FALLAR (errores)
+###############################################
+
+### 1) Sin token → 401 Unauthorized
+GET {{baseUrl}}/api/residuos
+
+### 2) Token inválido → 401 Unauthorized
+GET {{baseUrl}}/api/residuos
+Authorization: Bearer token-falso-123
+
+### 3) Login con contraseña incorrecta → 401 Unauthorized
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "usuario": "admin",
+  "clave": "clave-incorrecta"
+}
+
+### 4) Login correcto como USER (para obtener su token)
+# @name loginUser
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "usuario": "user",
+  "clave": "user123"
+}
+
+@tokenUser = {{loginUser.response.body.$.token}}
+
+### 5) USER intenta CREAR → 403 Forbidden
+POST {{baseUrl}}/api/residuos
+Authorization: Bearer {{tokenUser}}
+Content-Type: application/json
+
+{
+  "empresa": "Empresa Demo",
+  "tipo": "PLASTICO",
+  "cantidadKg": 10.5,
+  "fecha": "2026-10-15"
+}
+
+### 6) USER intenta ELIMINAR → 403 Forbidden
+DELETE {{baseUrl}}/api/residuos/1
+Authorization: Bearer {{tokenUser}}
+
+### 7) USER intenta ACTUALIZAR → 403 Forbidden
+PUT {{baseUrl}}/api/residuos/1
+Authorization: Bearer {{tokenUser}}
+Content-Type: application/json
+
+{
+  "empresa": "Empresa Demo",
+  "tipo": "PAPEL",
+  "cantidadKg": 20.0,
+  "fecha": "2026-10-15"
+}
