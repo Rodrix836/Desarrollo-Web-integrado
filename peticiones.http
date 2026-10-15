@@ -1,0 +1,57 @@
+@baseUrl = http://localhost:8080
+
+### 1) Sin token -> 401
+GET {{baseUrl}}/api/residuos
+
+### 2) Login como admin
+# @name login
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "usuario": "admin",
+  "clave": "admin123"
+}
+
+### Guardar el token
+@token = {{login.response.body.$.token}}
+
+### 3) GET con token -> 200
+GET {{baseUrl}}/api/residuos
+Authorization: Bearer {{token}}
+
+### 4) Login como user
+# @name loginUser
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "usuario": "user",
+  "clave": "user123"
+}
+
+@tokenUser = {{loginUser.response.body.$.token}}
+
+### 5) POST como user -> 403
+POST {{baseUrl}}/api/residuos
+Authorization: Bearer {{tokenUser}}
+Content-Type: application/json
+
+{
+  "empresa": "Empresa Demo",
+  "tipo": "PLASTICO",
+  "cantidadKg": 10.5,
+  "fecha": "2026-10-15"
+}
+
+### 6) POST como admin -> 201
+POST {{baseUrl}}/api/residuos
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "empresa": "Empresa Demo",
+  "tipo": "PLASTICO",
+  "cantidadKg": 10.5,
+  "fecha": "2026-10-15"
+}
