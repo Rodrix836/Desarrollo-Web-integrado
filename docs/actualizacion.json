@@ -1,0 +1,10 @@
+{
+  "tipoResiduo": "PAPEL_CARTON",
+  "cantidad": 3,
+  "unidadMedida": "kg",
+  "fecha": "2026-09-09",
+  "descripcion": "Cartón seco",
+  "empresa": "EcoEnvases",
+  "intercambioPor": "Envases de vidrio",
+  "disponible": true
+}

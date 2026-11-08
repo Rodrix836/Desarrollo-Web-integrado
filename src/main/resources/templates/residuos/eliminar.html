@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: head('Eliminar residuo | ReCiclo')}"></head>
+<body>
+<header th:replace="~{fragmentos :: cabecera('residuos')}"></header>
+<main id="contenido" class="contenedor contenido">
+    <a class="volver" th:href="@{/residuos}">Volver a los residuos</a>
+    <h1>Eliminar residuo</h1>
+    <section class="panel formulario" aria-label="Confirmación de eliminación">
+        <p>Vas a eliminar el siguiente registro:</p>
+        <p><strong th:text="${'#' + residuo.id + ' · ' + residuo.tipoResiduo.etiqueta + ' · ' + residuo.cantidad + ' ' + residuo.unidadMedida}"></strong></p>
+        <p class="subtitulo">Esta acción no se puede deshacer.</p>
+        <form method="post" th:action="@{/residuos/{id}/eliminar(id=${residuo.id})}">
+            <div class="acciones">
+                <button class="boton peligro" type="submit">Sí, eliminar residuo</button>
+                <a class="boton secundario" th:href="@{/residuos}">Cancelar</a>
+            </div>
+        </form>
+    </section>
+</main>
+<footer th:replace="~{fragmentos :: pie}"></footer>
+</body>
+</html>

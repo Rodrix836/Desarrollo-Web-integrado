@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: head('Error | ReCiclo')}"></head>
+<body>
+<th:block th:if="${vistaEmpresa == true}">
+    <header th:replace="~{fragmentos :: cabeceraEmpresa(${empresaActual ?: 'Empresa Demo'})}"></header>
+</th:block>
+<th:block th:unless="${vistaEmpresa == true}">
+    <header th:replace="~{fragmentos :: cabecera('')}"></header>
+</th:block>
+<main id="contenido" class="contenedor contenido">
+    <section class="panel formulario" aria-labelledby="titulo">
+        <p class="etiqueta" th:text="${status != null ? 'Error ' + status : 'Error'}">Error</p>
+        <h1 id="titulo" th:text="${status == 404 ? 'No encontramos el recurso' : 'No se pudo completar la solicitud'}">No se pudo completar la solicitud</h1>
+        <p th:text="${mensajeError ?: (status == 404 ? 'La página que buscas no existe.' : 'Inténtalo nuevamente o vuelve a la lista de residuos.')}"></p>
+        <div class="acciones">
+            <a class="boton" th:if="${vistaEmpresa == true}" th:href="@{/empresa(empresa=${empresaActual ?: 'Empresa Demo'})}">Ver materiales disponibles</a>
+            <a class="boton" th:unless="${vistaEmpresa == true}" th:href="@{/residuos}">Ver residuos</a>
+            <a class="boton secundario" th:href="@{/}">Ir al inicio</a>
+        </div>
+    </section>
+</main>
+<footer th:replace="~{fragmentos :: pie}"></footer>
+</body>
+</html>

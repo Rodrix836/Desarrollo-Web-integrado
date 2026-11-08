@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: head('Administración | ReCiclo')}"></head>
+<body>
+<header th:replace="~{fragmentos :: cabecera('residuos')}"></header>
+<main id="contenido" class="contenedor contenido">
+    <div class="titulo-pagina">
+        <div>
+            <h1>Administración de materiales</h1>
+            <p class="subtitulo">Gestiona los registros y su disponibilidad para trueque.</p>
+        </div>
+        <a class="boton" th:href="@{/residuos/nuevo}">Registrar residuo</a>
+    </div>
+    <p class="aviso" role="status" th:if="${mensaje}" th:text="${mensaje}"></p>
+    <div class="panel vacio" th:if="${#lists.isEmpty(residuos)}">
+        <h2>Aún no hay residuos registrados</h2>
+        <p>Empieza registrando el primer residuo que separaste para reciclar.</p>
+        <p><a th:href="@{/residuos/nuevo}">Registrar el primer residuo</a></p>
+    </div>
+    <div class="tabla-contenedor" th:unless="${#lists.isEmpty(residuos)}" tabindex="0" role="region" aria-label="Tabla de residuos">
+        <table>
+            <caption>Registros de residuos reciclables</caption>
+            <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Tipo</th>
+                <th scope="col">Empresa</th>
+                <th scope="col" class="numero">Cantidad</th>
+                <th scope="col">Unidad</th>
+                <th scope="col">Fecha</th>
+                <th scope="col">Disponibilidad</th>
+                <th scope="col">Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="residuo : ${residuos}">
+                <td th:text="${residuo.id}"></td>
+                <td th:text="${residuo.tipoResiduo.etiqueta}"></td>
+                <td th:text="${#strings.isEmpty(residuo.empresa) ? 'Sin asignar' : residuo.empresa}"></td>
+                <td class="numero" th:text="${residuo.cantidad}"></td>
+                <td th:text="${residuo.unidadMedida}"></td>
+                <td class="fecha" th:text="${#temporals.format(residuo.fecha, 'dd/MM/yyyy')}"></td>
+                <td th:text="${residuo.disponible ? 'Disponible' : 'No publicado'}"></td>
+                <td>
+                    <div class="acciones-fila">
+                        <a th:href="@{/residuos/{id}(id=${residuo.id})}" th:attr="aria-label=${'Ver residuo ' + residuo.id}">Ver</a>
+                        <a th:href="@{/residuos/{id}/editar(id=${residuo.id})}" th:attr="aria-label=${'Editar residuo ' + residuo.id}">Editar</a>
+                        <a class="enlace-peligro" th:href="@{/residuos/{id}/eliminar(id=${residuo.id})}" th:attr="aria-label=${'Eliminar residuo ' + residuo.id}">Eliminar</a>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+<footer th:replace="~{fragmentos :: pie}"></footer>
+</body>
+</html>

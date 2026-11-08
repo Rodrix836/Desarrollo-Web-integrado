@@ -1,0 +1,125 @@
+{
+  "info": {
+    "_postman_id": "reciclo-unidad1",
+    "name": "ReCiclo - API REST Unidad 1",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "id",
+      "value": "1"
+    }
+  ],
+  "item": [
+    {
+      "name": "GET - Listar residuos",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/residuos",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "residuos"
+          ]
+        }
+      }
+    },
+    {
+      "name": "GET - Consultar residuo",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/residuos/{{id}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "residuos",
+            "{{id}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "POST - Crear residuo",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"tipoResiduo\": \"PLASTICO\",\n  \"cantidad\": 2.5,\n  \"unidadMedida\": \"kg\",\n  \"fecha\": \"2026-09-10\",\n  \"descripcion\": \"Botellas limpias\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/residuos",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "residuos"
+          ]
+        }
+      }
+    },
+    {
+      "name": "PUT - Actualizar residuo",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"tipoResiduo\": \"PAPEL_CARTON\",\n  \"cantidad\": 3,\n  \"unidadMedida\": \"kg\",\n  \"fecha\": \"2026-09-10\",\n  \"descripcion\": \"Cajas limpias\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/residuos/{{id}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "residuos",
+            "{{id}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "DELETE - Eliminar residuo",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/residuos/{{id}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "residuos",
+            "{{id}}"
+          ]
+        }
+      }
+    }
+  ]
+}

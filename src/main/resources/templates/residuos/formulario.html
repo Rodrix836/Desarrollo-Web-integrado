@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: head(${edicion ? 'Editar residuo | ReCiclo' : 'Registrar residuo | ReCiclo'})}"></head>
+<body>
+<header th:replace="~{fragmentos :: cabecera(${edicion ? 'residuos' : 'registrar'})}"></header>
+<main id="contenido" class="contenedor contenido">
+    <a class="volver" th:href="@{/residuos}">Volver a los residuos</a>
+    <h1 th:text="${edicion ? 'Editar residuo' : 'Registrar residuo'}">Registrar residuo</h1>
+    <p class="subtitulo">Completa los datos del residuo. La descripción es opcional.</p>
+    <form class="panel formulario" method="post" th:action="@{${accionFormulario}}" th:object="${residuo}">
+        <p class="aviso aviso-error" role="alert" th:if="${#fields.hasErrors('*')}">Revisa los campos indicados antes de continuar.</p>
+        <div class="campos">
+            <div class="campo-completo">
+                <label for="empresa">Empresa propietaria</label>
+                <input id="empresa" type="text" th:field="*{empresa}" maxlength="100" placeholder="Ej. Papelera Andina"
+                       th:attr="aria-invalid=${errores.containsKey('empresa') or errores.containsKey('empresaValida')}">
+                <p class="ayuda">Obligatoria para mostrar el material como disponible en la vista de empresa.</p>
+                <p class="error-campo" th:if="${errores.containsKey('empresa')}" th:text="${errores.get('empresa')}"></p>
+                <p class="error-campo" th:if="${errores.containsKey('empresaValida')}" th:text="${errores.get('empresaValida')}"></p>
+            </div>
+            <div class="campo-completo">
+                <label for="tipoResiduo">Tipo de residuo</label>
+                <select id="tipoResiduo" th:field="*{tipoResiduo}" required
+                        th:attr="aria-invalid=${errores.containsKey('tipoResiduo')},aria-describedby=${errores.containsKey('tipoResiduo') ? 'tipoResiduo-error' : null}">
+                    <option value="">Selecciona un tipo</option>
+                    <option th:each="tipo : ${tiposResiduo}" th:value="${tipo}" th:text="${tipo.etiqueta}"></option>
+                </select>
+                <p class="error-campo" id="tipoResiduo-error" th:if="${errores.containsKey('tipoResiduo')}" th:text="${errores.get('tipoResiduo')}"></p>
+            </div>
+            <div>
+                <label for="cantidad">Cantidad</label>
+                <input id="cantidad" type="number" th:field="*{cantidad}" step="any" min="0" required placeholder="Ej. 2.5"
+                       th:attr="aria-invalid=${errores.containsKey('cantidad')},aria-describedby=${errores.containsKey('cantidad') ? 'cantidad-error' : null}">
+                <p class="error-campo" id="cantidad-error" th:if="${errores.containsKey('cantidad')}" th:text="${errores.get('cantidad')}"></p>
+            </div>
+            <div>
+                <label for="unidadMedida">Unidad</label>
+                <input id="unidadMedida" type="text" th:field="*{unidadMedida}" required placeholder="Ej. kg, g o unidades"
+                       th:attr="aria-invalid=${errores.containsKey('unidadMedida')},aria-describedby=${errores.containsKey('unidadMedida') ? 'unidadMedida-error' : null}">
+                <p class="error-campo" id="unidadMedida-error" th:if="${errores.containsKey('unidadMedida')}" th:text="${errores.get('unidadMedida')}"></p>
+            </div>
+            <div>
+                <label for="fecha">Fecha</label>
+                <input id="fecha" type="date" th:field="*{fecha}" required
+                       th:attr="aria-invalid=${errores.containsKey('fecha')},aria-describedby=${errores.containsKey('fecha') ? 'fecha-error' : null}">
+                <p class="error-campo" id="fecha-error" th:if="${errores.containsKey('fecha')}" th:text="${errores.get('fecha')}"></p>
+            </div>
+            <div class="campo-completo">
+                <label for="descripcion">Descripción (opcional)</label>
+                <textarea id="descripcion" th:field="*{descripcion}" rows="4" maxlength="500"
+                          placeholder="Ej. Botellas de plástico limpias y separadas"
+                          th:attr="aria-invalid=${errores.containsKey('descripcion')},aria-describedby=${errores.containsKey('descripcion') ? 'descripcion-ayuda descripcion-error' : 'descripcion-ayuda'}"></textarea>
+                <p class="ayuda" id="descripcion-ayuda">Máximo 500 caracteres.</p>
+                <p class="error-campo" id="descripcion-error" th:if="${errores.containsKey('descripcion')}" th:text="${errores.get('descripcion')}"></p>
+            </div>
+            <div class="campo-completo">
+                <label for="intercambioPor">Qué busca a cambio (opcional)</label>
+                <textarea id="intercambioPor" th:field="*{intercambioPor}" rows="2" maxlength="300"
+                          placeholder="Ej. Papel limpio o envases de vidrio"></textarea>
+                <p class="error-campo" th:if="${errores.containsKey('intercambioPor')}" th:text="${errores.get('intercambioPor')}"></p>
+            </div>
+            <div class="campo-completo">
+                <label class="opcion" for="disponible"><input id="disponible" type="checkbox" th:field="*{disponible}"> Disponible para trueque</label>
+                <p class="ayuda">Al desmarcarlo, el material deja de aparecer en el catálogo de empresas.</p>
+            </div>
+        </div>
+        <div class="acciones">
+            <button class="boton" type="submit" th:text="${edicion ? 'Guardar cambios' : 'Registrar'}">Registrar</button>
+            <a class="boton secundario" th:href="@{/residuos}">Cancelar</a>
+        </div>
+    </form>
+</main>
+<footer th:replace="~{fragmentos :: pie}"></footer>
+</body>
+</html>

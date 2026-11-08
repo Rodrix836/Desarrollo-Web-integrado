@@ -1,0 +1,10 @@
+{
+  "tipoResiduo": "PLASTICO",
+  "cantidad": 2.5,
+  "unidadMedida": "kg",
+  "fecha": "2026-09-09",
+  "descripcion": "Botellas limpias",
+  "empresa": "EcoEnvases",
+  "intercambioPor": "Papel limpio",
+  "disponible": true
+}

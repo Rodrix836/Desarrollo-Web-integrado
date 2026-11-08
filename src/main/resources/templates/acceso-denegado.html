@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: head('Acceso denegado | ReCiclo')}"></head>
+<body>
+<header th:replace="~{fragmentos :: cabecera('acceso')}"></header>
+<main id="contenido" class="contenedor contenido">
+    <section class="panel vacio">
+        <p class="etiqueta">403</p>
+        <h1>Acceso denegado</h1>
+        <p>No tienes permisos para acceder a este módulo.</p>
+        <a class="boton" th:href="@{/}">Volver al inicio</a>
+    </section>
+</main>
+<footer th:replace="~{fragmentos :: pie}"></footer>
+</body>
+</html>

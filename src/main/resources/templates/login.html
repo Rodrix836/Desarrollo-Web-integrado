@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: head('Iniciar sesión | ReCiclo')}"></head>
+<body>
+<header th:replace="~{fragmentos :: cabecera('login')}"></header>
+<main id="contenido" class="contenedor contenido">
+    <section class="panel formulario-acceso">
+        <p class="etiqueta">Acceso al sistema</p>
+        <h1>Iniciar sesión</h1>
+        <p class="subtitulo">Ingresa con tu cuenta para acceder al módulo correspondiente.</p>
+
+        <div class="panel" th:if="${param.logout}">
+            Sesión cerrada correctamente.
+        </div>
+        <div class="panel error" th:if="${error}" th:text="${error}"></div>
+
+        <form method="post" th:action="@{/login}">
+            <div>
+                <label for="username">Usuario</label>
+                <input id="username" name="username" type="text" th:value="${username}" required autofocus>
+            </div>
+            <div>
+                <label for="password">Contraseña</label>
+                <input id="password" name="password" type="password" required>
+            </div>
+            <button class="boton" type="submit">Ingresar</button>
+        </form>
+
+        <section class="ayuda">
+            <strong>Cuentas de demostración</strong>
+            <p><b>Administrador:</b> admin / admin123</p>
+            <p><b>Empresa:</b> empresa / empresa123</p>
+        </section>
+    </section>
+</main>
+<footer th:replace="~{fragmentos :: pie}"></footer>
+</body>
+</html>

@@ -1,0 +1,157 @@
+@baseUrl = http://localhost:8080
+
+### 1) Sin token -> 401
+GET {{baseUrl}}/api/residuos
+
+### 2) Login como admin
+# @name login
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "usuario": "admin",
+  "clave": "admin123"
+}
+
+### Guardar el token
+@token = {{login.response.body.$.token}}
+
+### 3) GET con token -> 200
+GET {{baseUrl}}/api/residuos
+Authorization: Bearer {{token}}
+
+### 4) Login como user
+# @name loginUser
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "usuario": "user",
+  "clave": "user123"
+}
+
+@tokenUser = {{loginUser.response.body.$.token}}
+
+### 5) POST como user -> 403
+POST {{baseUrl}}/api/residuos
+Authorization: Bearer {{tokenUser}}
+Content-Type: application/json
+
+{
+  "empresa": "Empresa Demo",
+  "tipo": "PLASTICO",
+  "cantidadKg": 10.5,
+  "fecha": "2026-10-15"
+}
+
+### 6) POST como admin -> 201
+POST {{baseUrl}}/api/residuos
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "empresa": "Empresa Demo",
+  "tipo": "PLASTICO",
+  "cantidadKg": 10.5,
+  "fecha": "2026-10-15"
+}
+
+
+###############################################
+### CASOS QUE DEBEN FALLAR (errores)
+###############################################
+
+### 1) Sin token → 401 Unauthorized
+GET {{baseUrl}}/api/residuos
+
+### 2) Token inválido → 401 Unauthorized
+GET {{baseUrl}}/api/residuos
+Authorization: Bearer token-falso-123
+
+### 3) Login con contraseña incorrecta → 401 Unauthorized
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "usuario": "admin",
+  "clave": "clave-incorrecta"
+}
+
+### 4) Login correcto como USER (para obtener su token)
+# @name loginUser
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "usuario": "user",
+  "clave": "user123"
+}
+
+@tokenUser = {{loginUser.response.body.$.token}}
+
+### 5) USER intenta CREAR → 403 Forbidden
+POST {{baseUrl}}/api/residuos
+Authorization: Bearer {{tokenUser}}
+Content-Type: application/json
+
+{
+  "empresa": "Empresa Demo",
+  "tipo": "PLASTICO",
+  "cantidadKg": 10.5,
+  "fecha": "2026-10-15"
+}
+
+### 6) USER intenta ELIMINAR → 403 Forbidden
+DELETE {{baseUrl}}/api/residuos/1
+Authorization: Bearer {{tokenUser}}
+
+### 7) USER intenta ACTUALIZAR → 403 Forbidden
+PUT {{baseUrl}}/api/residuos/1
+Authorization: Bearer {{tokenUser}}
+Content-Type: application/json
+
+{
+  "empresa": "Empresa Demo",
+  "tipo": "PAPEL",
+  "cantidadKg": 20.0,
+  "fecha": "2026-10-15"
+}
+
+###############################################
+### INTEGRANTE 1 - AUTH MEJORADO
+###############################################
+
+### Login (respuesta ampliada con rol, nombre, etc.)
+# @name loginAdminFull
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "usuario": "admin",
+  "clave": "admin123"
+}
+
+@tokenAdmin = {{loginAdminFull.response.body.$.token}}
+
+### Register nuevo usuario
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "nuevo",
+  "email": "nuevo@reciclo.pe",
+  "password": "password123",
+  "nombre": "Usuario Nuevo",
+  "rol": "USER"
+}
+
+### Perfil del usuario autenticado
+GET {{baseUrl}}/api/auth/me
+Authorization: Bearer {{tokenAdmin}}
+
+### Listar usuarios (solo ADMIN)
+GET {{baseUrl}}/api/usuarios
+Authorization: Bearer {{tokenAdmin}}
+
+### Health
+GET {{baseUrl}}/api/health

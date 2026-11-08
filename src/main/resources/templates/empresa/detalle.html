@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: head('Detalle para trueque | ReCiclo')}"></head>
+<body>
+<header th:replace="~{fragmentos :: cabeceraEmpresa(${empresaActual})}"></header>
+<main id="contenido" class="contenedor contenido">
+    <a class="volver" th:href="@{/empresa(empresa=${empresaActual})}">Volver a los materiales disponibles</a>
+    <p class="etiqueta">Disponible para trueque</p>
+    <h1 th:text="${residuo.tipoResiduo.etiqueta}"></h1>
+    <p class="subtitulo">Publicado por <strong th:text="${residuo.empresa}"></strong></p>
+    <section class="panel formulario" aria-label="Detalles del material">
+        <dl class="detalle">
+            <div><dt>Cantidad disponible</dt><dd th:text="${residuo.cantidad + ' ' + residuo.unidadMedida}"></dd></div>
+            <div><dt>Fecha del registro</dt><dd th:text="${#temporals.format(residuo.fecha, 'dd/MM/yyyy')}"></dd></div>
+            <div class="descripcion"><dt>Descripción</dt><dd th:text="${#strings.isEmpty(residuo.descripcion) ? 'Sin descripción adicional.' : residuo.descripcion}"></dd></div>
+            <div class="descripcion intercambio"><dt>Qué busca a cambio</dt><dd th:text="${#strings.isEmpty(residuo.intercambioPor) ? 'La empresa no ha indicado una preferencia.' : residuo.intercambioPor}"></dd></div>
+        </dl>
+    </section>
+    <p class="ayuda alcance-trueque">Este avance permite consultar los materiales y sus condiciones de intercambio. Las solicitudes de trueque se incorporarán en el siguiente avance.</p>
+</main>
+<footer th:replace="~{fragmentos :: pie}"></footer>
+</body>
+</html>
