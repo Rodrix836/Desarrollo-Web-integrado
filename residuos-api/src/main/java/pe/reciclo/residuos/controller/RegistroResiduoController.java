@@ -1,9 +1,9 @@
 package pe.reciclo.residuos.controller;
 
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pe.reciclo.residuos.dto.ResiduoRespuesta;
@@ -43,7 +42,7 @@ public class RegistroResiduoController {
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
+    @ApiResponse(responseCode = "201", description = "Residuo creado")
     public ResponseEntity<ResiduoRespuesta> crear(@Valid @RequestBody ResiduoSolicitud solicitud) {
         var creado = service.crear(solicitud);
         var ubicacion = ServletUriComponentsBuilder.fromCurrentRequestUri()
@@ -58,7 +57,7 @@ public class RegistroResiduoController {
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ApiResponse(responseCode = "204", description = "Residuo eliminado")
     public ResponseEntity<Void> eliminar(@PathVariable @Positive long id) {
         service.eliminar(id);
         return ResponseEntity.noContent().build();
