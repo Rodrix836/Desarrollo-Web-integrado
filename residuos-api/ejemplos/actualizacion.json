@@ -1,0 +1,10 @@
+{
+  "tipoResiduo": "METAL",
+  "cantidad": 7.2575,
+  "unidadMedida": "kg",
+  "fecha": "2026-09-09",
+  "descripcion": "Latas limpias",
+  "empresa": "Empresa Demo",
+  "intercambioPor": "Cartón",
+  "disponible": true
+}
