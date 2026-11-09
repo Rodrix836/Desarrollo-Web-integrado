@@ -1,0 +1,57 @@
+@auth = http://localhost:8081
+@base = http://localhost:8082/api/residuos
+@token = {{login.response.body.$.token}}
+@id = {{crear.response.body.$.id}}
+
+### 1. Iniciar sesión con la cuenta ADMIN de demostración
+# @name login
+# @prompt usuario Usuario de Auth
+# @prompt password Clave de Auth
+POST {{auth}}/api/auth/login
+Content-Type: application/json
+
+{
+  "usuario": "{{usuario}}",
+  "clave": "{{password}}"
+}
+
+### 2. Crear (201, Location e ID generado)
+# @name crear
+POST {{base}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+< ./ejemplos/registro.json
+
+### 3. Listar (200)
+GET {{base}}
+Authorization: Bearer {{token}}
+
+### 4. Consultar por ID (200)
+GET {{base}}/{{id}}
+Authorization: Bearer {{token}}
+
+### 5. Actualizar (200, conserva el ID)
+PUT {{base}}/{{id}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+< ./ejemplos/actualizacion.json
+
+### 6. Eliminar (204)
+DELETE {{base}}/{{id}}
+Authorization: Bearer {{token}}
+
+### 7. Consultar el eliminado (404)
+GET {{base}}/{{id}}
+Authorization: Bearer {{token}}
+
+### Sin token (401)
+GET {{base}}
+
+### Cuerpo inválido con ADMIN (400)
+POST {{base}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{}
