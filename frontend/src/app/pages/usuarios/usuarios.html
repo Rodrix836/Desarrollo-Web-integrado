@@ -1,0 +1,66 @@
+<section class="page">
+  <div class="page-heading">
+    <div>
+      <p class="eyebrow">ADMINISTRACIÓN DE LA COMUNIDAD</p>
+      <h1>Usuarios</h1>
+      <p class="muted">Gestiona los permisos de acceso a ReCiclo.</p>
+    </div>
+  </div>
+  @if (error) {
+    <p class="alert error" role="alert">{{ error }}</p>
+  }
+  @if (mensaje) {
+    <p class="alert success" role="status">{{ mensaje }}</p>
+  }
+  <div class="panel table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Usuario</th>
+          <th>Nombre</th>
+          <th>Rol</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (u of usuarios; track u.id) {
+          <tr>
+            <td>
+              <strong>{{ u.username }}</strong>
+            </td>
+            <td>{{ u.nombre }}</td>
+            <td>
+              <label class="sr-only" [for]="'rol-' + u.id">Rol de {{ u.username }}</label
+              ><select
+                [id]="'rol-' + u.id"
+                [(ngModel)]="seleccion[u.id!]"
+                [disabled]="u.username === auth.usuario()?.username"
+              >
+                <option value="USER">USER</option>
+                <option value="ADMIN">ADMIN</option>
+                <option value="EMPRESA">EMPRESA</option>
+              </select>
+            </td>
+            <td>
+              <button
+                class="button secondary"
+                (click)="guardar(u)"
+                [disabled]="
+                  guardando !== undefined ||
+                  u.rol === seleccion[u.id!] ||
+                  u.username === auth.usuario()?.username
+                "
+              >
+                Guardar rol
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  <p class="table-footnote">
+    ADMIN gestiona materiales y usuarios. USER consulta materiales. EMPRESA requiere un permiso USER
+    o ADMIN para acceder al catálogo actual.
+  </p>
+</section>

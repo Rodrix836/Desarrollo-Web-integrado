@@ -1,0 +1,74 @@
+<section class="page">
+  <div class="page-heading">
+    <div>
+      <p class="eyebrow">TU COMUNIDAD EN MOVIMIENTO</p>
+      <h1>Hola, {{ auth.usuario()?.nombre }}.</h1>
+      <p class="muted">Cada registro es una oportunidad para volver a empezar.</p>
+    </div>
+    @if (auth.admin()) {
+      <a class="button primary" routerLink="/residuos/nuevo">+ Registrar residuo</a>
+    }
+  </div>
+  @if (error) {
+    <p class="alert error" role="alert">{{ error }}</p>
+  }
+  @if (!auth.puedeConsultar()) {
+    <p class="alert">
+      Tu cuenta de empresa está activa. El catálogo requiere un rol USER o ADMIN. Comunícate con el
+      administrador para habilitar el acceso.
+    </p>
+  }
+  <div class="metrics">
+    <article>
+      <span>Materiales registrados</span><strong>{{ cargando ? '…' : datos.length }}</strong
+      ><small>Registros en la comunidad</small>
+    </article>
+    <article>
+      <span>Disponibles para intercambio</span><strong>{{ cargando ? '…' : disponibles }}</strong
+      ><small>Listos para un nuevo ciclo</small>
+    </article>
+    <article>
+      <span>Empresas participantes</span><strong>{{ cargando ? '…' : empresas }}</strong
+      ><small>Con materiales registrados</small>
+    </article>
+  </div>
+  <div class="feature-band">
+    <div>
+      <p class="eyebrow">MATERIALES CON FUTURO</p>
+      <h2>Lo que ya no usas,<br />alguien más lo necesita.</h2>
+      <p>Explora los residuos registrados y encuentra nuevas oportunidades de aprovechamiento.</p>
+      <a routerLink="/residuos" class="button light">Explorar materiales <span>↗</span></a>
+    </div>
+    <div class="circular-mark" aria-hidden="true">↻</div>
+  </div>
+  <div class="section-title">
+    <h2>Últimos materiales</h2>
+    <a routerLink="/residuos">Ver todos →</a>
+  </div>
+  <div class="panel">
+    @if (cargando) {
+      <p class="empty">Cargando materiales…</p>
+    } @else if (!datos.length) {
+      <div class="empty">
+        <strong>El próximo ciclo comienza con un registro</strong>
+        <p>Los materiales que registre la comunidad aparecerán aquí.</p>
+      </div>
+    } @else {
+      @for (r of datos.slice(-4).reverse(); track r.id) {
+        <a class="material-row" [routerLink]="['/residuos', r.id]"
+          ><span class="material-icon">{{ nombreTipo(r.tipoResiduo).charAt(0) }}</span>
+          <div>
+            <strong>{{ nombreTipo(r.tipoResiduo) }}</strong
+            ><small>{{ r.empresa || 'Sin empresa' }}</small>
+          </div>
+          <strong class="quantity"
+            >{{ r.cantidad }} <small>{{ r.unidadMedida }}</small></strong
+          ><span class="status" [class.available]="r.disponible">{{
+            r.disponible ? 'Disponible' : 'No disponible'
+          }}</span
+          ><span aria-hidden="true">↗</span></a
+        >
+      }
+    }
+  </div>
+</section>

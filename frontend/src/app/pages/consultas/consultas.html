@@ -1,0 +1,92 @@
+<section class="page">
+  <div class="page-heading">
+    <div>
+      <p class="eyebrow">ENCUENTRA LA PRÓXIMA CONEXIÓN</p>
+      <h1>Consultas</h1>
+      <p class="muted">Explora los materiales por empresa, tipo y disponibilidad.</p>
+    </div>
+  </div>
+  <form class="panel filter-panel" (ngSubmit)="buscar()">
+    <div>
+      <label for="empresa">Empresa</label
+      ><input
+        id="empresa"
+        name="empresa"
+        [(ngModel)]="empresa"
+        list="empresas"
+        placeholder="Todas las empresas"
+      /><datalist id="empresas">
+        @for (e of empresas; track e) {
+          <option [value]="e"></option>
+        }
+      </datalist>
+    </div>
+    <div>
+      <label for="tipo">Material</label
+      ><select id="tipo" name="tipo" [(ngModel)]="tipo">
+        <option value="">Todos</option>
+        @for (t of tipos; track t.value) {
+          <option [value]="t.value">{{ t.label }}</option>
+        }
+      </select>
+    </div>
+    <div>
+      <label for="disponible">Disponibilidad</label
+      ><select id="disponible" name="disponible" [(ngModel)]="disponible">
+        <option value="">Todas</option>
+        <option value="true">Disponible</option>
+        <option value="false">No disponible</option>
+      </select>
+    </div>
+    <div>
+      <label for="cantidadMinima">Cantidad mínima</label
+      ><input
+        type="number"
+        min="0"
+        id="cantidadMinima"
+        name="cantidadMinima"
+        [(ngModel)]="cantidadMinima"
+        placeholder="Sin mínimo"
+      />
+    </div>
+    <button class="button primary" [disabled]="cargando">
+      {{ cargando ? 'Consultando…' : 'Buscar materiales' }}
+    </button>
+  </form>
+  <p class="table-footnote">
+    La cantidad se compara en la unidad de cada registro. Revisa las unidades al comparar
+    materiales.
+  </p>
+  @if (error) {
+    <p class="alert error" role="alert">{{ error }}</p>
+  }
+  <div class="section-title">
+    <h2>Resultados</h2>
+    <span>{{ datos.length }} coincidencias</span>
+  </div>
+  <div class="panel">
+    @if (cargando) {
+      <p class="empty" role="status">Consultando materiales…</p>
+    } @else if (!datos.length && consultado) {
+      <div class="empty">
+        <h2>No hay materiales con estos filtros</h2>
+        <p>Cambia los criterios para explorar otras oportunidades.</p>
+      </div>
+    } @else {
+      @for (r of datos; track r.id) {
+        <a class="material-row" [routerLink]="['/residuos', r.id]"
+          ><span class="material-icon">{{ nombreTipo(r.tipoResiduo).charAt(0) }}</span>
+          <div>
+            <strong>{{ nombreTipo(r.tipoResiduo) }}</strong
+            ><small>{{ r.empresa || 'Sin empresa' }}</small>
+          </div>
+          <strong class="quantity">{{ r.cantidad }} {{ r.unidadMedida }}</strong
+          ><span class="status" [class.available]="r.disponible">{{
+            r.disponible ? 'Disponible' : 'No disponible'
+          }}</span
+          ><span>↗</span></a
+        >
+      }
+    }
+  </div>
+</section>

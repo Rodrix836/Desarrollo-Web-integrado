@@ -10,7 +10,7 @@ En PowerShell o CMD, ubícate en la carpeta donde quieras clonar el repositorio 
 git clone https://github.com/Rodrix836/Desarrollo-Web-integrado.git
 cd Desarrollo-Web-integrado
 git fetch origin
-git switch Rodrigo_API-de-ResiduosPuerto
+git switch Rodrigo_Frontend-Angular
 git branch --show-current
 code .
 ```
@@ -42,51 +42,19 @@ La suite usa H2 en memoria. Las pruebas unitarias con Mockito verifican las inte
 
 La verificación del módulo completó **41 pruebas** (10 unitarias y 31 de integración), sin fallos ni omisiones. La prueba de listado con un JWT válido devolvió 401 antes de implementar el endpoint y 200 después. La demostración con Auth en 8081 confirmó el CRUD en 8082 y la recuperación del registro actualizado al reiniciar el servicio.
 
-## Demostración con el emisor del integrante 1
+## Demostración integrada con Auth y Angular
 
-Para ejecutar el emisor localmente desde su rama, crea un segundo directorio de trabajo de Git:
-
-```powershell
-git fetch origin
-git worktree add --detach ../ReCiclo-auth origin/auth-AdrianJuarez
-```
-
-En una terminal para **Auth**, desde la raíz de la copia de Residuos:
+Auth ya está en auth-api dentro de este repositorio. Su login recibe username y password.
+Inicia una API en cada terminal, desde la raíz:
 
 ```powershell
-cd ../ReCiclo-auth
-mvn "-Dspring-boot.run.arguments=--server.port=8081 --server.address=127.0.0.1 --spring.datasource.url=jdbc:h2:mem:authdemo --reciclo.datos.cargar-semilla=false" spring-boot:run
+powershell.exe -ExecutionPolicy Bypass -File ./scripts/iniciar-api.ps1 -Servicio auth
+powershell.exe -ExecutionPolicy Bypass -File ./scripts/iniciar-api.ps1 -Servicio residuos
 ```
 
-En una segunda terminal, desde la **raíz del repositorio de Residuos**, define `RECICLO_JWT_SECRET` con la misma clave que usa Auth. La versión de Auth verificada (`7818e5d`) tiene una clave fija de demostración en `JwtService.java`. Este comando lee la clave de esa copia local sin mostrarla:
+Usa la [guía del frontend Angular](../docs/GUIA_FRONTEND_WINDOWS.txt) para iniciar Consultas y abrir la página en localhost:4200. El script configura la misma clave local para Auth y Residuos.
 
-```powershell
-$emisor = Get-Content ../ReCiclo-auth/src/main/java/pe/reciclo/security/JwtService.java -Raw
-$env:RECICLO_JWT_SECRET = [regex]::Match($emisor, 'private static final String SECRETO = "([^"]+)"').Groups[1].Value
-mvn -f residuos-api/pom.xml "-Dspring-boot.run.profiles=demo" spring-boot:run
-```
-
-El perfil `demo` habilita Swagger y escucha en `127.0.0.1`. Para arrancar el servicio con la configuración habitual, usa `mvn -f residuos-api/pom.xml spring-boot:run`. La clave es obligatoria y se lee como UTF-8 (mínimo 32 bytes). Si el equipo configura Auth mediante entorno, ambos procesos deben usar exactamente la misma clave de firma. Utiliza la clave fija de la rama de Auth exclusivamente para la demostración local.
-
-### Ver el CRUD en VS Code
-
-1. Instala **REST Client** (`humao.rest-client`) en VS Code y abre [peticiones.http](peticiones.http).
-2. Pulsa **Send Request** en el bloque de login. Introduce el usuario y la contraseña ADMIN documentados en la rama de Auth. La respuesta contiene `token`. [Usuarios de demostración de Auth](https://github.com/Rodrix836/Desarrollo-Web-integrado/blob/7818e5d5b3830e3b2273c2bf928445b6868bb74f/docs/INTEGRANTE_1_AUTH.md)
-3. Pulsa **Send Request** en **Crear**, **Listar**, **Consultar**, **Actualizar** y **Eliminar**, en ese orden. El archivo toma el JWT del login y el ID del POST. Vuelve a consultar el ID eliminado y observa el `404`.
-4. Para mostrar los permisos, vuelve a ejecutar el login con la cuenta `user`. El listado devuelve `200` y el bloque **Crear** devuelve `403`. La petición **Sin token** devuelve `401`.
-
-### Ver el CRUD en Swagger
-
-En [Swagger UI](http://localhost:8082/swagger-ui/index.html), pulsa **Authorize** y pega el valor de `token` sin el prefijo `Bearer`. Abre cada operación y pulsa **Try it out** y **Execute**. Usa [registro.json](ejemplos/registro.json) para POST y [actualizacion.json](ejemplos/actualizacion.json) para PUT. Conserva el ID devuelto por el POST para las rutas de detalle.
-
-También puedes obtener el token desde otra terminal PowerShell. Usa las credenciales locales de la rama de Auth cuando aparezca el diálogo:
-
-```powershell
-$cuenta = Get-Credential -UserName admin -Message 'Cuenta local de Auth'
-$cuerpo = @{ usuario = $cuenta.UserName; clave = $cuenta.GetNetworkCredential().Password } | ConvertTo-Json
-$sesion = Invoke-RestMethod http://localhost:8081/api/auth/login -Method Post -ContentType application/json -Body $cuerpo
-Set-Clipboard -Value $sesion.token
-```
+Swagger está en http://localhost:8082/swagger-ui/index.html. Puedes obtener un JWT con POST /api/auth/login y copiarlo en Authorize, o usar peticiones.http en VS Code con REST Client. Las cuentas demo de una base Auth vacía son admin/admin123 y user/user123.
 
 ## Demostración local sin Auth
 

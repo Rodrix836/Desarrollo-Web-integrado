@@ -1,0 +1,112 @@
+<section class="page narrow">
+  <a class="back-link" routerLink="/residuos">← Volver al inventario</a>
+  <div class="page-heading">
+    <div>
+      <p class="eyebrow">UN MATERIAL, OTRA OPORTUNIDAD</p>
+      <h1>{{ id ? 'Editar residuo' : 'Registrar residuo' }}</h1>
+      <p class="muted">Cuéntanos qué material tienes y cómo puede aprovecharse.</p>
+    </div>
+  </div>
+  @if (error) {
+    <p class="alert error" role="alert">{{ error }}</p>
+  }
+  @for (e of errores | keyvalue; track e.key) {
+    <p class="field-error">{{ e.key }} — {{ e.value }}</p>
+  }
+  @if (cargando) {
+    <p role="status">Cargando registro…</p>
+  } @else {
+    <form #f="ngForm" (ngSubmit)="guardar(f)" class="panel form-panel">
+      <div class="form-section">
+        <h2>El material</h2>
+        <p class="muted">Los campos con * son obligatorios.</p>
+        <div class="form-grid">
+          <div>
+            <label for="tipoResiduo">Tipo de residuo *</label
+            ><select id="tipoResiduo" name="tipoResiduo" [(ngModel)]="datos.tipoResiduo" required>
+              @for (t of tipos; track t.value) {
+                <option [value]="t.value">{{ t.label }}</option>
+              }
+            </select>
+          </div>
+          <div>
+            <label for="fecha">Fecha *</label
+            ><input type="date" id="fecha" name="fecha" [(ngModel)]="datos.fecha" required />
+          </div>
+          <div>
+            <label for="cantidad">Cantidad *</label
+            ><input
+              type="number"
+              id="cantidad"
+              name="cantidad"
+              [(ngModel)]="datos.cantidad"
+              required
+              min="0"
+              step="any"
+            />
+          </div>
+          <div>
+            <label for="unidadMedida">Unidad de medida *</label
+            ><input
+              id="unidadMedida"
+              name="unidadMedida"
+              [(ngModel)]="datos.unidadMedida"
+              required
+              placeholder="kg, toneladas, unidades…"
+            />
+          </div>
+          <div class="full">
+            <label for="descripcion">Descripción</label
+            ><textarea
+              id="descripcion"
+              name="descripcion"
+              [(ngModel)]="datos.descripcion"
+              maxlength="500"
+              rows="3"
+              placeholder="Describe el estado o las características del material"
+            ></textarea
+            ><small class="muted">Hasta 500 caracteres</small>
+          </div>
+        </div>
+      </div>
+      <div class="form-section">
+        <h2>Su próximo ciclo</h2>
+        <div class="form-grid">
+          <div>
+            <label for="empresa">Empresa {{ datos.disponible ? '*' : '' }}</label
+            ><input
+              id="empresa"
+              name="empresa"
+              [(ngModel)]="datos.empresa"
+              maxlength="100"
+              [required]="datos.disponible"
+              placeholder="Nombre de la empresa"
+            />
+          </div>
+          <div>
+            <label for="intercambioPor">Preferencia de intercambio</label
+            ><input
+              id="intercambioPor"
+              name="intercambioPor"
+              [(ngModel)]="datos.intercambioPor"
+              maxlength="300"
+              placeholder="¿Qué material buscas?"
+            />
+          </div>
+          <label class="checkbox-line full"
+            ><input type="checkbox" name="disponible" [(ngModel)]="datos.disponible" /><span
+              ><strong>Disponible para intercambio</strong
+              ><small>Publica este material como disponible para la comunidad.</small></span
+            ></label
+          >
+        </div>
+      </div>
+      <div class="form-actions">
+        <a class="button secondary" routerLink="/residuos">Cancelar</a
+        ><button class="button primary" [disabled]="guardando">
+          {{ guardando ? 'Guardando…' : id ? 'Guardar cambios' : 'Registrar material' }}
+        </button>
+      </div>
+    </form>
+  }
+</section>
