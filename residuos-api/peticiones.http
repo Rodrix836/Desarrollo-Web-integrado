@@ -11,8 +11,8 @@ POST {{auth}}/api/auth/login
 Content-Type: application/json
 
 {
-  "usuario": "{{usuario}}",
-  "clave": "{{password}}"
+  "username": "{{usuario}}",
+  "password": "{{password}}"
 }
 
 ### 2. Crear (201, Location e ID generado)

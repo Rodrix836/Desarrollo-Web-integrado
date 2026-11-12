@@ -1,0 +1,95 @@
+<section class="page">
+  <div class="page-heading">
+    <div>
+      <p class="eyebrow">REGISTRO DE MATERIALES</p>
+      <h1>Residuos</h1>
+      <p class="muted">Materiales que tienen una próxima oportunidad.</p>
+    </div>
+    @if (auth.admin()) {
+      <a class="button primary" routerLink="/residuos/nuevo">+ Registrar residuo</a>
+    }
+  </div>
+  <div class="toolbar">
+    <div class="search-control">
+      <label class="sr-only" for="buscar">Buscar material o empresa</label
+      ><input
+        id="buscar"
+        type="search"
+        [(ngModel)]="busqueda"
+        placeholder="Buscar material o empresa…"
+      />
+    </div>
+    <label class="sr-only" for="tipo">Filtrar por tipo</label
+    ><select id="tipo" [(ngModel)]="tipo">
+      <option value="">Todos los materiales</option>
+      @for (t of tipos; track t.value) {
+        <option [value]="t.value">{{ t.label }}</option>
+      }</select
+    ><button class="button secondary" (click)="cargar()" [disabled]="cargando">Actualizar</button>
+  </div>
+  @if (error) {
+    <p class="alert error" role="alert">{{ error }}</p>
+  }
+  <div class="panel table-wrap">
+    <div class="table-caption">
+      <strong>Inventario de la comunidad</strong><span>{{ filtrados.length }} registros</span>
+    </div>
+    @if (cargando) {
+      <p class="empty" role="status">Cargando materiales…</p>
+    } @else if (!filtrados.length) {
+      <div class="empty">
+        <span class="empty-symbol">↻</span>
+        <h2>{{ datos.length ? 'No encontramos coincidencias' : 'Tu inventario empieza aquí' }}</h2>
+        <p>
+          {{
+            datos.length
+              ? 'Prueba con otro material o empresa.'
+              : 'Registra el primer residuo para darle una nueva oportunidad.'
+          }}
+        </p>
+      </div>
+    } @else {
+      <table>
+        <thead>
+          <tr>
+            <th>Material</th>
+            <th>Cantidad</th>
+            <th>Empresa</th>
+            <th>Fecha</th>
+            <th>Estado</th>
+            <th><span class="sr-only">Acciones</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (r of filtrados; track r.id) {
+            <tr>
+              <td>
+                <a class="material-name" [routerLink]="['/residuos', r.id]"
+                  ><span class="material-icon">{{ nombreTipo(r.tipoResiduo).charAt(0) }}</span>
+                  <div>
+                    <strong>{{ nombreTipo(r.tipoResiduo) }}</strong
+                    ><small>#{{ r.id }} · {{ r.descripcion || 'Sin descripción' }}</small>
+                  </div></a
+                >
+              </td>
+              <td class="quantity">
+                {{ r.cantidad }} <span class="muted">{{ r.unidadMedida }}</span>
+              </td>
+              <td>{{ r.empresa || 'Sin empresa' }}</td>
+              <td>{{ r.fecha }}</td>
+              <td>
+                <span class="status" [class.available]="r.disponible">{{
+                  r.disponible ? 'Disponible' : 'No disponible'
+                }}</span>
+              </td>
+              <td><a class="row-link" [routerLink]="['/residuos', r.id]">Ver detalle ↗</a></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+  <p class="table-footnote">
+    La disponibilidad indica si el material puede participar en un intercambio.
+  </p>
+</section>

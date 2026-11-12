@@ -1,9 +1,10 @@
 /target/
 /data/
+/.local/
+*.log
 /.idea/
 /.vscode/
 *.iml
 .classpath
 .project
 .settings/
-*.log

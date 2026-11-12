@@ -1,0 +1,46 @@
+<section class="page narrow">
+  <a class="back-link" routerLink="/residuos">← Volver al inventario</a>
+  @if (error) {
+    <p class="alert error" role="alert">{{ error }}</p>
+  }
+  @if (residuo; as r) {
+    <div class="page-heading">
+      <div>
+        <p class="eyebrow">REGISTRO #{{ r.id }}</p>
+        <h1>{{ nombreTipo(r.tipoResiduo) }}</h1>
+        <p class="muted">{{ r.empresa || 'Sin empresa registrada' }}</p>
+      </div>
+      <span class="status" [class.available]="r.disponible">{{
+        r.disponible ? 'Disponible' : 'No disponible'
+      }}</span>
+    </div>
+    <div class="panel detail-panel">
+      <div class="detail-amount">
+        {{ r.cantidad }} <span>{{ r.unidadMedida }}</span>
+      </div>
+      <dl>
+        <div>
+          <dt>Fecha de registro</dt>
+          <dd>{{ r.fecha }}</dd>
+        </div>
+        <div>
+          <dt>Descripción</dt>
+          <dd>{{ r.descripcion || 'Sin descripción' }}</dd>
+        </div>
+        <div>
+          <dt>Preferencia de intercambio</dt>
+          <dd>{{ r.intercambioPor || 'Sin preferencia' }}</dd>
+        </div>
+      </dl>
+      @if (auth.admin()) {
+        <div class="form-actions">
+          <button class="button danger" [disabled]="eliminando" (click)="eliminar()">
+            {{ eliminando ? 'Eliminando…' : 'Eliminar residuo' }}</button
+          ><a class="button primary" [routerLink]="['/residuos', r.id, 'editar']">Editar residuo</a>
+        </div>
+      }
+    </div>
+  } @else if (!error) {
+    <p class="empty" role="status">Cargando registro…</p>
+  }
+</section>

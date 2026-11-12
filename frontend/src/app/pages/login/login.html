@@ -1,0 +1,79 @@
+<main class="login-layout">
+  <section class="login-story">
+    <a class="brand" href="/"><span class="brand-mark">↻</span>ReCiclo.</a>
+    <div>
+      <p class="eyebrow">DE RESIDUO A RECURSO</p>
+      <h1>Un nuevo ciclo<br />empieza contigo.</h1>
+      <p class="story-copy">
+        Conecta materiales, empresas y oportunidades. Un espacio para que los residuos encuentren su
+        próximo uso.
+      </p>
+      <div class="material-lines">
+        <span>01 — REGISTRA</span><span>02 — CONECTA</span><span>03 — TRANSFORMA</span>
+      </div>
+    </div>
+    <small>ReCiclo · Plataforma de gestión circular</small>
+  </section>
+  <section class="login-panel">
+    <div class="login-card">
+      <span class="eyebrow">BIENVENIDO A RECICLO</span>
+      <h2>{{ registro ? 'Crea tu cuenta' : 'Inicia sesión' }}</h2>
+      <p class="muted">
+        {{
+          registro
+            ? 'Regístrate para consultar los materiales de la comunidad.'
+            : 'Continúa gestionando los materiales de tu comunidad.'
+        }}
+      </p>
+      @if (error) {
+        <p class="alert error" role="alert">{{ error }}</p>
+      }
+      <form #f="ngForm" (ngSubmit)="f.valid && entrar()">
+        @if (registro) {
+          <label for="nombre">Nombre completo</label
+          ><input
+            id="nombre"
+            name="nombre"
+            [(ngModel)]="nombre"
+            required
+            maxlength="100"
+            autocomplete="name"
+          />
+        }
+        <label for="username">Usuario</label
+        ><input
+          id="username"
+          name="username"
+          [(ngModel)]="username"
+          required
+          [minlength]="registro ? 3 : 1"
+          maxlength="50"
+          autocomplete="username"
+          placeholder="Tu nombre de usuario"
+        />
+        <label for="password">Contraseña</label
+        ><input
+          id="password"
+          type="password"
+          name="password"
+          [(ngModel)]="password"
+          required
+          [minlength]="registro ? 6 : 1"
+          maxlength="100"
+          [autocomplete]="registro ? 'new-password' : 'current-password'"
+          placeholder="Tu contraseña"
+        />
+        <button class="button primary wide" [disabled]="f.invalid || cargando">
+          {{ cargando ? 'Conectando…' : registro ? 'Crear cuenta' : 'Ingresar a ReCiclo' }}
+          <span>→</span>
+        </button>
+      </form>
+      <p class="login-switch">
+        {{ registro ? '¿Ya tienes una cuenta?' : '¿Primera vez en ReCiclo?' }}
+        <button class="text-button" (click)="registro = !registro; error = ''">
+          {{ registro ? 'Inicia sesión' : 'Crear una cuenta' }}
+        </button>
+      </p>
+    </div>
+  </section>
+</main>

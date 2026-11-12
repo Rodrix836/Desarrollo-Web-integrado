@@ -1,0 +1,47 @@
+@if (auth.usuario()) {
+  <div class="workspace">
+    <aside class="sidebar">
+      <a class="brand" routerLink="/" aria-label="ReCiclo, inicio"
+        ><span class="brand-mark">↻</span> ReCiclo<span class="brand-dot">.</span></a
+      >
+      <p class="sidebar-label">GESTIÓN CIRCULAR</p>
+      <nav aria-label="Navegación principal">
+        <a routerLink="/" routerLinkActive="selected" [routerLinkActiveOptions]="{ exact: true }"
+          ><span aria-hidden="true">⌂</span>Inicio</a
+        >
+        <a routerLink="/residuos" routerLinkActive="selected"
+          ><span aria-hidden="true">▤</span>Residuos</a
+        >
+        <a routerLink="/consultas" routerLinkActive="selected"
+          ><span aria-hidden="true">⌕</span>Consultas</a
+        >
+        @if (auth.admin()) {
+          <a routerLink="/usuarios" routerLinkActive="selected"
+            ><span aria-hidden="true">♧</span>Usuarios</a
+          >
+        }
+      </nav>
+      <div class="sidebar-note">
+        <span class="loop-symbol">↻</span><strong>Cada material cuenta.</strong>
+        <p>Registra, conecta y dale otra oportunidad a tus residuos.</p>
+      </div>
+      <div class="account">
+        <span class="avatar">{{ auth.usuario()?.nombre?.charAt(0) }}</span>
+        <div>
+          <strong>{{ auth.usuario()?.nombre }}</strong
+          ><small>{{ auth.usuario()?.rol }}</small>
+        </div>
+      </div>
+      <button class="logout" (click)="auth.logout()">Cerrar sesión <span>↗</span></button>
+    </aside>
+    <main class="main-content">
+      <div class="topbar">
+        <span>ReCiclo / Espacio de trabajo</span
+        ><span class="workspace-badge">Gestión de materiales</span>
+      </div>
+      <router-outlet />
+    </main>
+  </div>
+} @else {
+  <router-outlet />
+}
