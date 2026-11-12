@@ -1,0 +1,40 @@
+@baseUrl = http://localhost:8081
+
+### Register
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "prueba",
+  "password": "prueba123",
+  "nombre": "Usuario de prueba"
+}
+
+### Login ADMIN
+# @name login
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin123"
+}
+
+@token = {{login.response.body.$.token}}
+
+### /me
+GET {{baseUrl}}/api/auth/me
+Authorization: Bearer {{token}}
+
+### Listar usuarios (ADMIN)
+GET {{baseUrl}}/api/usuarios
+Authorization: Bearer {{token}}
+
+### Cambiar rol
+PUT {{baseUrl}}/api/usuarios/3/rol
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "rol": "EMPRESA"
+}
