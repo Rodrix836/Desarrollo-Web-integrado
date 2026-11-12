@@ -223,7 +223,12 @@ La página Angular ya gestiona esto automáticamente.
   el login requiere POST. Usa la pantalla Angular o el bloque PowerShell.
 - 401: inicia sesión de nuevo. Comprueba que ambas APIs se iniciaron con
   el script de esta copia del repositorio para usar la misma clave.
-- 403: el rol no permite la acción. Usa ADMIN para el CRUD y Usuarios.
+- 403 en el login: comprueba que usas la versión actualizada de las APIs.
+  Las APIs admiten tanto localhost:4200 como 127.0.0.1:4200. La versión
+  inicial solo admitía localhost. Si todavía está ejecutándose esa versión,
+  abre http://localhost:4200/login o actualiza y reinicia las tres APIs.
+- 403 después del login: el rol no permite la acción. Usa ADMIN para el
+  CRUD y Usuarios.
 - "Puerto en uso": hay otra instancia abierta. Detén esa terminal con
   Ctrl+C antes de iniciar otra en el mismo puerto.
 - La página indica que no conecta con el servicio: verifica las tres
@@ -247,7 +252,7 @@ Pruebas de navegador, con las tres APIs y npm.cmd start activos:
 
 Las pruebas de navegador usan Google Chrome instalado, crean cuentas y
 hacen CRUD con materiales de prueba. Usa bases de desarrollo.
-Se verificaron 3 pruebas Auth, 41 Residuos y 3 Consultas.
+Se verificaron 6 pruebas Auth, 42 Residuos y 6 Consultas.
 Se verificó el recorrido de navegador para ADMIN, USER, registro y roles.
 Las pruebas antiguas de la aplicación raíz conservan sus fallos previos y
 no forman parte de estas tres suites.

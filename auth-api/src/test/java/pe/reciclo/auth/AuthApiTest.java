@@ -2,6 +2,8 @@ package pe.reciclo.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -52,5 +54,28 @@ class AuthApiTest {
                 .andExpect(status().isCreated()).andExpect(jsonPath("$.rol").value("USER"));
         mvc.perform(post("/api/auth/register").contentType("application/json").content(body))
                 .andExpect(status().isConflict());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"http://localhost:4200", "http://127.0.0.1:4200"})
+    void loginAceptaLosDosOrigenesLocales(String origen) throws Exception {
+        mvc.perform(options("/api/auth/login").header("Origin", origen)
+                        .header("Access-Control-Request-Method", "POST")
+                        .header("Access-Control-Request-Headers", "content-type"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Access-Control-Allow-Origin", origen));
+        mvc.perform(post("/api/auth/login").header("Origin", origen)
+                        .contentType("application/json")
+                        .content("{\"username\":\"admin\",\"password\":\"admin123\"}"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Access-Control-Allow-Origin", origen))
+                .andExpect(jsonPath("$.rol").value("ADMIN"));
+    }
+
+    @Test void rechazaOrigenExterno() throws Exception {
+        mvc.perform(options("/api/auth/login").header("Origin", "https://otro.example")
+                        .header("Access-Control-Request-Method", "POST"))
+                .andExpect(status().isForbidden())
+                .andExpect(header().doesNotExist("Access-Control-Allow-Origin"));
     }
 }

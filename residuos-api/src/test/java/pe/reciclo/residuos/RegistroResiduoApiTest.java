@@ -242,13 +242,14 @@ class RegistroResiduoApiTest {
                 .andExpect(status().isForbidden());
     }
 
-    @Test
-    void permitePreflightDeAngular() throws Exception {
-        mvc.perform(options(BASE).header(HttpHeaders.ORIGIN, "http://localhost:4200")
+    @ParameterizedTest
+    @ValueSource(strings = {"http://localhost:4200", "http://127.0.0.1:4200"})
+    void permitePreflightDeAngular(String origen) throws Exception {
+        mvc.perform(options(BASE).header(HttpHeaders.ORIGIN, origen)
                         .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "POST")
                         .header(HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS, "Authorization,Content-Type"))
                 .andExpect(status().isOk())
-                .andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "http://localhost:4200"));
+                .andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, origen));
     }
 
     @Test

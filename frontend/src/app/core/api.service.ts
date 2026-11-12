@@ -35,6 +35,8 @@ export class ApiService {
   }
 }
 export function mensajeError(error: HttpErrorResponse): string {
+  if (error.status === 403 && error.error === 'Invalid CORS request')
+    return 'El servidor rechazó el origen de esta página. Abre http://localhost:4200 y vuelve a intentar.';
   if (error.status === 0 || error.status === 502 || error.status === 504)
     return 'No se pudo conectar con el servicio. Comprueba que las APIs estén iniciadas y vuelve a intentar.';
   if (error.status === 403) return 'Tu rol no tiene permiso para realizar esta operación.';
