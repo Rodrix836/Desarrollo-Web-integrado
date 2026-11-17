@@ -3,7 +3,7 @@
 Interfaz Angular 20 para Auth (8081), Residuos (8082) y Consultas (8083).
 La aplicación se abre en http://localhost:4200.
 
-La [guía completa de Windows](../docs/GUIA_FRONTEND_WINDOWS.txt) incluye preparación, comandos de inicio, cuentas, demo del CRUD y solución de los errores de PowerShell.
+La [guía actualizada de Windows e intercambios programados](../docs/GUIA_INTERCAMBIOS_PROGRAMADOS.txt) incluye preparación, comandos de inicio, cuentas, demo del CRUD y solución de los errores de PowerShell.
 
 Desde la raíz, abre una terminal por API y ejecuta el comando correspondiente.
 
@@ -26,8 +26,10 @@ El registro público crea cuentas USER.
 
 `proxy.conf.json` enruta las solicitudes a los servicios locales. Una publicación de `dist/frontend/browser` requiere configurar esas mismas rutas en el reverse proxy del servidor.
 
-`npm.cmd run build` compila producción. Con las APIs y el frontend activos, `npm.cmd test` ejecuta cuatro pruebas de navegador usando Google Chrome instalado. Las pruebas crean cuentas y realizan CRUD en las bases de desarrollo.
+`npm.cmd run build` compila producción. Con las APIs y el frontend activos, `npm.cmd test` ejecuta seis pruebas de navegador usando Google Chrome instalado. Las pruebas crean cuentas y realizan CRUD en las bases de desarrollo.
 
 El JWT se conserva en sessionStorage y vence en una hora. Los guards controlan la navegación, mientras el backend aplica los permisos. Las pantallas incluyen estados de carga, vacío, error y confirmación de borrado.
 
 Consultas usa un servicio HTTP de lectura sobre Residuos. Los JPQL anteriores siguen en la aplicación raíz.
+
+El formulario condiciona los datos de intercambio al check. ADMIN programa y filtra; USER ve avisos y solo el catálogo disponible. Las fechas usan America/Lima y los avisos se recargan al entrar o pulsar Actualizar.

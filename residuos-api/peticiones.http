@@ -16,6 +16,7 @@ Content-Type: application/json
 }
 
 ### 2. Crear (201, Location e ID generado)
+# Ajusta fechaPublicacion en ejemplos/registro.json a hoy o una fecha futura en Lima.
 # @name crear
 POST {{base}}
 Authorization: Bearer {{token}}
@@ -32,6 +33,7 @@ GET {{base}}/{{id}}
 Authorization: Bearer {{token}}
 
 ### 5. Actualizar (200, conserva el ID)
+# Ajusta fechaPublicacion en ejemplos/actualizacion.json a hoy o una fecha futura.
 PUT {{base}}/{{id}}
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -55,3 +57,11 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {}
+
+### Avisos de intercambios de hoy y futuros
+GET {{base}}/avisos
+Authorization: Bearer {{token}}
+
+### Filtrar programación y preferencia (ADMIN)
+GET {{base}}?estado=PROGRAMADO&preferencia=PAPEL_CARTON
+Authorization: Bearer {{token}}

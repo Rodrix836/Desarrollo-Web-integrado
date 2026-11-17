@@ -1,12 +1,15 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
-import { Residuo, ResiduoInput, Usuario } from './models';
+import { AvisoIntercambio, Residuo, ResiduoInput, Usuario } from './models';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   private http = inject(HttpClient);
   listar() {
     return this.http.get<Residuo[]>('/api/residuos');
+  }
+  avisos() {
+    return this.http.get<AvisoIntercambio[]>('/api/residuos/avisos');
   }
   consultar(id: number) {
     return this.http.get<Residuo>('/api/residuos/' + id);

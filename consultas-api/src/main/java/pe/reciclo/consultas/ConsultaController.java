@@ -20,13 +20,15 @@ public class ConsultaController {
             @RequestParam(required = false) String empresa,
             @RequestParam(required = false) String tipo,
             @RequestParam(required = false) Boolean disponible,
-            @RequestParam(required = false) BigDecimal cantidadMinima) {
-        return service.consultar(token, empresa, tipo, disponible, cantidadMinima);
+            @RequestParam(required = false) BigDecimal cantidadMinima,
+            @RequestParam(required = false) String estado,
+            @RequestParam(required = false) String preferencia) {
+        return service.consultar(token, empresa, tipo, disponible, cantidadMinima, estado, preferencia);
     }
 
     @GetMapping("/empresas")
     public List<String> empresas(@RequestHeader(value = "Authorization", required = false) String token) {
-        return service.consultar(token, null, null, null, null).stream()
+        return service.consultar(token, null, null, null, null, null, null).stream()
                 .map(ConsultaService.Residuo::empresa).filter(e -> e != null && !e.isBlank())
                 .distinct().sorted().toList();
     }

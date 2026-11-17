@@ -19,10 +19,12 @@ public class ConsultaService {
         this.client = builder.baseUrl(url).build();
     }
 
-    public List<Residuo> consultar(String token, String empresa, String tipo, Boolean disponible, BigDecimal minimo) {
+    public List<Residuo> consultar(String token, String empresa, String tipo, Boolean disponible,
+                                   BigDecimal minimo, String estado, String preferencia) {
         if (token == null || !token.startsWith("Bearer ")) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Se requiere un token Bearer válido.");
         }
+        // Residuos aplica la visibilidad del rol antes de devolver los registros.
         List<Residuo> registros = client.get().uri("/api/residuos")
                 .header(HttpHeaders.AUTHORIZATION, token).retrieve()
                 .body(new ParameterizedTypeReference<List<Residuo>>() {});
@@ -32,10 +34,12 @@ public class ConsultaService {
                 .filter(r -> tipo == null || tipo.isBlank() || r.tipoResiduo().equals(tipo))
                 .filter(r -> disponible == null || disponible.equals(r.disponible()))
                 .filter(r -> minimo == null || r.cantidad().compareTo(minimo) >= 0)
+                .filter(r -> estado == null || estado.isBlank() || estado.equals(r.estadoPublicacion()))
+                .filter(r -> preferencia == null || preferencia.isBlank() || preferencia.equals(r.intercambioPor()))
                 .toList();
     }
 
     public record Residuo(Long id, String tipoResiduo, BigDecimal cantidad, String unidadMedida,
                           String fecha, String descripcion, String empresa, String intercambioPor,
-                          Boolean disponible) {}
+                          Boolean disponible, String fechaPublicacion, String estadoPublicacion) {}
 }

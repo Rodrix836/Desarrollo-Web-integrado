@@ -2,7 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ApiService, mensajeError } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
-import { Residuo, nombreTipo } from '../../core/models';
+import { Residuo, nombreTipo, nombreEstado, fechaLegible } from '../../core/models';
 @Component({ imports: [RouterLink], templateUrl: './detalle.html' })
 export class DetallePage implements OnInit {
   auth = inject(AuthService);
@@ -13,6 +13,8 @@ export class DetallePage implements OnInit {
   error = '';
   eliminando = false;
   nombreTipo = nombreTipo;
+  nombreEstado = nombreEstado;
+  fechaLegible = fechaLegible;
   ngOnInit() {
     this.api
       .consultar(this.id)

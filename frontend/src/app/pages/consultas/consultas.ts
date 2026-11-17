@@ -1,29 +1,31 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { ApiService, mensajeError } from '../../core/api.service';
-import { Residuo, tipos, nombreTipo } from '../../core/models';
+import { AuthService } from '../../core/auth.service';
+import { Residuo, tipos, estados, nombreTipo, nombreEstado, fechaLegible } from '../../core/models';
+
 @Component({ imports: [FormsModule, RouterLink], templateUrl: './consultas.html' })
 export class ConsultasPage implements OnInit {
   private api = inject(ApiService);
+  auth = inject(AuthService);
   tipos = tipos;
+  estados = estados;
   nombreTipo = nombreTipo;
+  nombreEstado = nombreEstado;
+  fechaLegible = fechaLegible;
   datos: Residuo[] = [];
   empresas: string[] = [];
   empresa = '';
   tipo = '';
-  disponible = '';
+  estado = '';
+  preferencia = '';
   cantidadMinima = '';
   error = '';
   cargando = false;
   consultado = false;
   ngOnInit() {
-    this.api
-      .empresas()
-      .subscribe({
-        next: (r) => (this.empresas = r),
-        error: (e) => (this.error = mensajeError(e)),
-      });
     this.buscar();
   }
   buscar() {
@@ -33,13 +35,15 @@ export class ConsultasPage implements OnInit {
       Object.entries({
         empresa: this.empresa,
         tipo: this.tipo,
-        disponible: this.disponible,
+        estado: this.estado,
+        preferencia: this.preferencia,
         cantidadMinima: this.cantidadMinima,
       }).filter(([, v]) => v !== ''),
     );
-    this.api.consultas(filtros).subscribe({
+    forkJoin({ datos: this.api.consultas(filtros), empresas: this.api.empresas() }).subscribe({
       next: (r) => {
-        this.datos = r;
+        this.datos = r.datos;
+        this.empresas = r.empresas;
         this.cargando = false;
         this.consultado = true;
       },

@@ -1,3 +1,7 @@
+GUÍA ACTUALIZADA: consulta docs/GUIA_INTERCAMBIOS_PROGRAMADOS.txt para la rama Rodrigo_Intercambios-Programados y las nuevas funciones.
+
+Esta guía conserva los pasos de la entrega Angular anterior.
+
 GUÍA DE RECICLO CON FRONTEND ANGULAR
 12 de noviembre de 2026
 Repositorio: https://github.com/Rodrix836/Desarrollo-Web-integrado
@@ -128,8 +132,8 @@ RECORRIDO PARA LA DEMOSTRACIÓN
   1. Inicia sesión como admin.
   2. En Inicio observa los contadores basados en registros reales.
   3. Abre Residuos y pulsa Registrar residuo.
-  4. Completa tipo, cantidad positiva, unidad y fecha.
-  5. Si marcas disponible, escribe una empresa.
+  4. Completa tipo, cantidad positiva en kg y descripción.
+  5. Marca Habilitar intercambio y completa empresa, preferencia y fecha de publicación.
   6. Guarda. Se abre el detalle con el ID generado por H2.
   7. Vuelve a Residuos. Busca por material o empresa.
   8. Abre el detalle y pulsa Editar residuo. Cambia la cantidad y guarda.
@@ -168,10 +172,10 @@ Para crear:
       tipoResiduo = 'PLASTICO'
       cantidad = 2.5
       unidadMedida = 'kg'
-      fecha = (Get-Date).ToString('yyyy-MM-dd')
+      fechaPublicacion = (Get-Date).ToString('yyyy-MM-dd')
       descripcion = 'Botellas limpias'
       empresa = 'Empresa Demo'
-      intercambioPor = 'Papel'
+      intercambioPor = 'PAPEL_CARTON'
       disponible = $true
   }
   $json = $datos | ConvertTo-Json -Compress
@@ -252,7 +256,7 @@ Pruebas de navegador, con las tres APIs y npm.cmd start activos:
 
 Las pruebas de navegador usan Google Chrome instalado, crean cuentas y
 hacen CRUD con materiales de prueba. Usa bases de desarrollo.
-Se verificaron 6 pruebas Auth, 42 Residuos y 6 Consultas.
+En esta versión se verificaron 6 pruebas Auth, 53 Residuos y 6 Consultas.
 Se verificó el recorrido de navegador para ADMIN, USER, registro y roles.
 Las pruebas antiguas de la aplicación raíz conservan sus fallos previos y
 no forman parte de estas tres suites.

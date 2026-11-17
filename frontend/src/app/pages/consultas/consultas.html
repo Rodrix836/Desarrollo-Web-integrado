@@ -30,12 +30,24 @@
         }
       </select>
     </div>
+    @if (auth.admin()) {
+      <div>
+        <label for="estado">Estado de publicación</label
+        ><select id="estado" name="estado" [(ngModel)]="estado">
+          <option value="">Todos</option>
+          @for (e of estados; track e.value) {
+            <option [value]="e.value">{{ e.label }}</option>
+          }
+        </select>
+      </div>
+    }
     <div>
-      <label for="disponible">Disponibilidad</label
-      ><select id="disponible" name="disponible" [(ngModel)]="disponible">
+      <label for="preferencia">Preferencia de intercambio</label
+      ><select id="preferencia" name="preferencia" [(ngModel)]="preferencia">
         <option value="">Todas</option>
-        <option value="true">Disponible</option>
-        <option value="false">No disponible</option>
+        @for (t of tipos; track t.value) {
+          <option [value]="t.value">{{ t.label }}</option>
+        }
       </select>
     </div>
     <div>
@@ -77,13 +89,19 @@
         <a class="material-row" [routerLink]="['/residuos', r.id]"
           ><span class="material-icon">{{ nombreTipo(r.tipoResiduo).charAt(0) }}</span>
           <div>
-            <strong>{{ nombreTipo(r.tipoResiduo) }}</strong
-            ><small>{{ r.empresa || 'Sin empresa' }}</small>
+            <strong>{{ nombreTipo(r.tipoResiduo) }}</strong><small
+              >{{ r.empresa || 'Sin empresa' }} ·
+              {{
+                r.fechaPublicacion ? fechaLegible(r.fechaPublicacion) : 'Sin programación'
+              }}</small
+            >
           </div>
           <strong class="quantity">{{ r.cantidad }} {{ r.unidadMedida }}</strong
-          ><span class="status" [class.available]="r.disponible">{{
-            r.disponible ? 'Disponible' : 'No disponible'
-          }}</span
+          ><span
+            class="status"
+            [class.available]="r.estadoPublicacion === 'DISPONIBLE'"
+            [class.scheduled]="r.estadoPublicacion === 'PROGRAMADO'"
+            >{{ nombreEstado(r.estadoPublicacion) }}</span
           ><span>↗</span></a
         >
       }

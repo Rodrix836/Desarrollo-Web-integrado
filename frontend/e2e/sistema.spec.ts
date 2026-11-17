@@ -8,9 +8,10 @@ test('ADMIN registra, consulta, edita y elimina el mismo material', async ({ pag
   await expect(page.getByRole('heading', { name: /Hola,/ })).toBeVisible();
   await page.getByRole('link', { name: '+ Registrar residuo' }).click();
   await page.getByLabel('Cantidad').fill('2.125');
-  await page.getByLabel('Empresa', { exact: false }).fill('Empresa E2E');
+  await page.getByLabel('Habilitar intercambio').check();
+  await page.getByRole('textbox', { name: /^Empresa/ }).fill('Empresa E2E');
   await page.getByLabel('Descripción').fill('Material de prueba visual');
-  await page.getByLabel('Disponible para intercambio').check();
+  await page.getByLabel('Preferencia de intercambio').selectOption('PAPEL_CARTON');
   await page.getByRole('button', { name: 'Registrar material' }).click();
   await expect(page.getByText('2.125', { exact: false }).first()).toBeVisible();
   const detail = page.url();
