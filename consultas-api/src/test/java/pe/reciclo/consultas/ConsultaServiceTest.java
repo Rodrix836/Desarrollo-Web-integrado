@@ -25,23 +25,23 @@ class ConsultaServiceTest {
         server.expect(requestTo("http://residuos/api/residuos"))
                 .andExpect(header(HttpHeaders.AUTHORIZATION, "Bearer ejemplo"))
                 .andRespond(withSuccess("""
-                [{"id":1,"tipoResiduo":"PLASTICO","cantidad":2.75,"empresa":"Acme","disponible":true},
+                [{"id":1,"tipoResiduo":"PLASTICO","cantidad":2.75,"empresa":"Acme","disponible":true,"fechaPublicacion":"2026-11-16","estadoPublicacion":"DISPONIBLE","intercambioPor":"PAPEL_CARTON"},
                  {"id":2,"tipoResiduo":"METAL","cantidad":1,"empresa":"Otra","disponible":false}]
                 """, MediaType.APPLICATION_JSON));
-        var result = service.consultar("Bearer ejemplo", "ACM", "PLASTICO", true, new BigDecimal("2.5"));
+        var result = service.consultar("Bearer ejemplo", "ACM", "PLASTICO", true, new BigDecimal("2.5"), "DISPONIBLE", "PAPEL_CARTON");
         assertThat(result).hasSize(1);
         assertThat(result.getFirst().id()).isEqualTo(1);
         assertThat(result.getFirst().cantidad()).isEqualByComparingTo("2.75");
         server.verify();
     }
     @Test void sinTokenNoConsultaUpstream() {
-        assertThatThrownBy(() -> service.consultar(null, null, null, null, null))
+        assertThatThrownBy(() -> service.consultar(null, null, null, null, null, null, null))
                 .isInstanceOf(ResponseStatusException.class);
         server.verify();
     }
     @Test void tokenRechazadoPorResiduosSePropaga() {
         server.expect(requestTo("http://residuos/api/residuos")).andRespond(withUnauthorizedRequest());
-        assertThatThrownBy(() -> service.consultar("Bearer malo", null, null, null, null))
+        assertThatThrownBy(() -> service.consultar("Bearer malo", null, null, null, null, null, null))
                 .isInstanceOf(HttpClientErrorException.Unauthorized.class);
         server.verify();
     }

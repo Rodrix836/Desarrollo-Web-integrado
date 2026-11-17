@@ -3,7 +3,8 @@ import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ApiService, mensajeError } from '../../core/api.service';
-import { ResiduoInput, tipos } from '../../core/models';
+import { fechaLegible, hoyLima, ResiduoInput, tipos } from '../../core/models';
+
 @Component({ imports: [FormsModule, RouterLink, KeyValuePipe], templateUrl: './formulario.html' })
 export class FormularioPage implements OnInit {
   private api = inject(ApiService);
@@ -11,36 +12,68 @@ export class FormularioPage implements OnInit {
   private route = inject(ActivatedRoute);
   id = Number(this.route.snapshot.paramMap.get('id')) || null;
   tipos = tipos;
+  fechaLegible = fechaLegible;
   cargando = false;
+  cargaFallida = false;
   guardando = false;
   error = '';
   errores: Record<string, string> = {};
+  fechaOriginal: string | null = null;
+  preferenciaHistorica = '';
   datos: ResiduoInput = {
     tipoResiduo: 'PLASTICO',
     cantidad: 1,
     unidadMedida: 'kg',
-    fecha: new Date().toLocaleDateString('en-CA'),
     descripcion: '',
     empresa: '',
     intercambioPor: '',
     disponible: false,
+    fechaPublicacion: null,
   };
+
   ngOnInit() {
-    if (this.id) {
-      this.cargando = true;
-      this.api.consultar(this.id).subscribe({
-        next: (r) => {
-          const { id, ...datos } = r;
-          this.datos = datos;
-          this.cargando = false;
-        },
-        error: (e) => {
-          this.error = mensajeError(e);
-          this.cargando = false;
-        },
-      });
+    if (!this.id) return;
+    this.cargando = true;
+    this.api.consultar(this.id).subscribe({
+      next: (r) => {
+        const { id, estadoPublicacion, ...datos } = r;
+        this.fechaOriginal = r.fechaPublicacion;
+        this.preferenciaHistorica = tipos.some((t) => t.value === r.intercambioPor)
+          ? ''
+          : r.intercambioPor;
+        this.datos = datos;
+        if (r.disponible && !r.fechaPublicacion) this.datos.fechaPublicacion = hoyLima();
+        this.cargando = false;
+      },
+      error: (e) => {
+        this.error = mensajeError(e);
+        this.cargaFallida = true;
+        this.cargando = false;
+      },
+    });
+  }
+
+  cambiarIntercambio() {
+    this.errores = {};
+    if (this.datos.disponible) {
+      this.datos.fechaPublicacion = hoyLima();
+    } else {
+      this.datos.intercambioPor = '';
+      this.datos.fechaPublicacion = null;
     }
   }
+
+  get fechaMinima(): string {
+    if (
+      this.fechaOriginal &&
+      this.datos.fechaPublicacion === this.fechaOriginal &&
+      this.fechaOriginal < hoyLima()
+    ) {
+      return this.fechaOriginal;
+    }
+    return hoyLima();
+  }
+
   guardar(form: NgForm) {
     this.error = '';
     this.errores = {};
@@ -48,8 +81,12 @@ export class FormularioPage implements OnInit {
       this.error = 'Completa los campos obligatorios y revisa la cantidad.';
       return;
     }
-    if (this.datos.disponible && !this.datos.empresa.trim()) {
-      this.error = 'Indica la empresa para publicar un material disponible.';
+    if (
+      this.datos.disponible &&
+      (!this.datos.empresa.trim() || !this.datos.intercambioPor || !this.datos.fechaPublicacion)
+    ) {
+      this.error =
+        'Indica empresa, preferencia y fecha de publicación para habilitar el intercambio.';
       return;
     }
     this.guardando = true;

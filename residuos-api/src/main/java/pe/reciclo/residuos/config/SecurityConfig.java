@@ -64,7 +64,7 @@ public class SecurityConfig {
                         permisos.requestMatchers(HttpMethod.GET, "/swagger-ui.html", "/swagger-ui/**",
                                 "/v3/api-docs", "/v3/api-docs/**").permitAll();
                     }
-                    permisos.requestMatchers(HttpMethod.GET, BASE, DETALLE).hasAnyRole("USER", "ADMIN")
+                    permisos.requestMatchers(HttpMethod.GET, BASE, BASE + "/avisos", DETALLE).hasAnyRole("USER", "ADMIN")
                             .requestMatchers(HttpMethod.POST, BASE).hasRole("ADMIN")
                             .requestMatchers(HttpMethod.PUT, DETALLE).hasRole("ADMIN")
                             .requestMatchers(HttpMethod.DELETE, DETALLE).hasRole("ADMIN")

@@ -35,6 +35,6 @@ class ResiduoSolicitudTest {
 
     private static ResiduoSolicitud solicitud(Boolean disponible) {
         return new ResiduoSolicitud(TipoResiduo.VIDRIO, BigDecimal.ONE, "kg",
-                LocalDate.of(2026, 9, 9), null, " ", null, disponible);
+                LocalDate.of(2026, 9, 9), null, " ", null, disponible, null);
     }
 }

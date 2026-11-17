@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.mockito.InjectMocks;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Sort;
@@ -17,6 +17,9 @@ import pe.reciclo.residuos.repository.RegistroResiduoRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,21 +33,27 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class RegistroResiduoServiceTest {
 
+    private static final LocalDate HOY = LocalDate.of(2026, 11, 16);
     private static final ResiduoSolicitud SOLICITUD = new ResiduoSolicitud(
             TipoResiduo.PLASTICO, new BigDecimal("2.123456789"), "kg",
-            LocalDate.of(2026, 9, 9), "Botellas", "Acme", "Papel", true);
+            LocalDate.of(2026, 9, 9), "Botellas", "Acme", "PAPEL_CARTON", true, HOY);
 
     @Mock
     private RegistroResiduoRepository repository;
 
-    @InjectMocks
     private RegistroResiduoService service;
+
+    @BeforeEach
+    void prepararReloj() {
+        service = new RegistroResiduoService(repository,
+                Clock.fixed(Instant.parse("2026-11-16T17:00:00Z"), ZoneId.of("America/Lima")));
+    }
 
     @Test
     void listarOrdenaPorIdYDevuelveLasRespuestas() {
         Sort orden = Sort.by("id");
         when(repository.findAll(orden)).thenReturn(List.of(registro(8L), registro(9L)));
-        assertThat(service.listar()).containsExactly(registro(8L).aRespuesta(), registro(9L).aRespuesta());
+        assertThat(service.listar(true, null, null)).containsExactly(registro(8L).aRespuesta(HOY), registro(9L).aRespuesta(HOY));
         verify(repository).findAll(orden);
     }
 
@@ -52,7 +61,7 @@ class RegistroResiduoServiceTest {
     void consultarBuscaPorId() {
         RegistroResiduo guardado = registro(7L);
         when(repository.findById(7L)).thenReturn(Optional.of(guardado));
-        assertThat(service.consultar(7L)).isEqualTo(guardado.aRespuesta());
+        assertThat(service.consultar(7L, true)).isEqualTo(guardado.aRespuesta(HOY));
         verify(repository).findById(7L);
     }
 
@@ -60,12 +69,12 @@ class RegistroResiduoServiceTest {
     void crearEntregaUnaEntidadNuevaYDevuelveElIdGenerado() {
         when(repository.save(any(RegistroResiduo.class))).thenAnswer(llamada -> {
             RegistroResiduo nuevo = llamada.getArgument(0);
-            assertThat(nuevo.aRespuesta().id()).isNull();
-            assertThat(nuevo.aRespuesta().cantidad()).isEqualTo(SOLICITUD.cantidad());
+            assertThat(nuevo.aRespuesta(HOY).id()).isNull();
+            assertThat(nuevo.aRespuesta(HOY).cantidad()).isEqualTo(SOLICITUD.cantidad());
             ReflectionTestUtils.setField(nuevo, "id", 7L);
             return nuevo;
         });
-        assertThat(service.crear(SOLICITUD)).isEqualTo(registro(7L).aRespuesta());
+        assertThat(service.crear(SOLICITUD)).isEqualTo(registro(7L).aRespuesta(HOY));
         verify(repository).save(any(RegistroResiduo.class));
     }
 
@@ -74,9 +83,9 @@ class RegistroResiduoServiceTest {
         RegistroResiduo guardado = registro(7L);
         when(repository.findById(7L)).thenReturn(Optional.of(guardado));
         var cambios = new ResiduoSolicitud(TipoResiduo.METAL, new BigDecimal("10.002"), "kg",
-                LocalDate.of(2026, 9, 10), "Latas", null, null, null);
+                LocalDate.of(2026, 9, 10), "Latas", null, null, null, null);
         var actualizado = service.actualizar(7L, cambios);
-        assertThat(actualizado).isEqualTo(guardado.aRespuesta());
+        assertThat(actualizado).isEqualTo(guardado.aRespuesta(HOY));
         assertThat(actualizado.id()).isEqualTo(7L);
         assertThat(actualizado.tipoResiduo()).isEqualTo(TipoResiduo.METAL);
         assertThat(actualizado.cantidad()).isEqualByComparingTo("10.002");
@@ -100,7 +109,7 @@ class RegistroResiduoServiceTest {
         when(repository.findById(7L)).thenReturn(Optional.empty());
         assertThatThrownBy(() -> {
             switch (operacion) {
-                case CONSULTAR -> service.consultar(7L);
+                case CONSULTAR -> service.consultar(7L, true);
                 case ACTUALIZAR -> service.actualizar(7L, SOLICITUD);
                 case ELIMINAR -> service.eliminar(7L);
             }

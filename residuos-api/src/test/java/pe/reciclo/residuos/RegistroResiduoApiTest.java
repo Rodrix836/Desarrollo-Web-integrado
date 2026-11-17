@@ -7,6 +7,7 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import org.junit.jupiter.api.BeforeEach;
+import org.springframework.context.annotation.Import;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -40,6 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@Import(RelojPruebaConfig.class)
 class RegistroResiduoApiTest {
 
     // Clave efímera, exclusiva de este contexto de pruebas.
@@ -49,7 +51,7 @@ class RegistroResiduoApiTest {
     private static final String REGISTRO = """
             {"tipoResiduo":"PLASTICO","cantidad":2.123456789123456789,"unidadMedida":"kg",
              "fecha":"2026-09-09","descripcion":"Botellas","empresa":"Acme",
-             "intercambioPor":"Papel","disponible":true,"id":999}
+             "intercambioPor":"PAPEL_CARTON","disponible":true,"id":999,"fechaPublicacion":"2026-11-16"}
             """;
 
     @Autowired
@@ -58,9 +60,13 @@ class RegistroResiduoApiTest {
     @Autowired
     private RegistroResiduoRepository repository;
 
+    @Autowired
+    private RelojPruebaConfig.RelojPrueba reloj;
+
     @BeforeEach
     void limpiarBase() {
         repository.deleteAll();
+        reloj.fijar("2026-11-16T17:00:00Z");
     }
 
     @DynamicPropertySource
@@ -162,14 +168,13 @@ class RegistroResiduoApiTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errores.cantidad").isNotEmpty())
                 .andExpect(jsonPath("$.errores.tipoResiduo").isNotEmpty())
-                .andExpect(jsonPath("$.errores.unidadMedida").isNotEmpty())
-                .andExpect(jsonPath("$.errores.fecha").isNotEmpty());
+                .andExpect(jsonPath("$.errores.unidadMedida").isNotEmpty());
     }
 
     @Test
     void rechazaTextosDemasiadoLargos() throws Exception {
         String invalido = REGISTRO.replace("Botellas", "d".repeat(501))
-                .replace("Acme", "e".repeat(101)).replace("Papel", "p".repeat(301));
+                .replace("Acme", "e".repeat(101)).replace("PAPEL_CARTON", "p".repeat(301));
         mvc.perform(json(post(BASE), invalido)).andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errores.descripcion").isNotEmpty())
                 .andExpect(jsonPath("$.errores.empresa").isNotEmpty())
