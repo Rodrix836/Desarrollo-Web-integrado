@@ -1,10 +1,14 @@
+## Intercambios programados
+
+El administrador habilita el intercambio, elige la preferencia y programa la publicación. USER ve el catálogo disponible y avisos de fechas futuras. Consulta la [guía actualizada de Windows](docs/GUIA_INTERCAMBIOS_PROGRAMADOS.txt) para abrir esta rama, iniciar las tres APIs y Angular, y probar cada función.
+
 ## Frontend Angular conectado
 
 La nueva interfaz está en frontend y se abre en http://localhost:4200. Conecta Auth (8081), Residuos (8082) y Consultas (8083), con login, registro, CRUD visual, filtros y roles.
 
 Consulta [la guía Windows con comandos completos](docs/GUIA_FRONTEND_WINDOWS.txt) para iniciar los cuatro procesos y demostrar el sistema. Los comandos anteriores del Auth integrado en la aplicación raíz corresponden a esa versión previa.
 
-# ReCiclo — primer avance
+# ReCiclo — versión anterior en la aplicación raíz
 
 **Plataforma web para promover y gestionar el reciclaje de residuos.** Esta primera versión permite registrar, consultar, editar y eliminar residuos mediante una API REST y páginas sencillas de Thymeleaf, HTML y CSS, sin JavaScript.
 

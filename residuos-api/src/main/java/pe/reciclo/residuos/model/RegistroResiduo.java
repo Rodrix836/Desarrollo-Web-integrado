@@ -38,6 +38,8 @@ public class RegistroResiduo {
     @Column(nullable = false)
     private LocalDate fecha;
 
+    private LocalDate fechaPublicacion;
+
     @Column(length = 500)
     private String descripcion;
 
@@ -62,14 +64,22 @@ public class RegistroResiduo {
         cantidad = solicitud.cantidad();
         unidadMedida = solicitud.unidadMedida();
         fecha = solicitud.fecha();
+        fechaPublicacion = solicitud.fechaPublicacion();
         descripcion = solicitud.descripcion();
         empresa = solicitud.empresa();
         intercambioPor = solicitud.intercambioPor();
         disponible = solicitud.disponible();
     }
 
-    public ResiduoRespuesta aRespuesta() {
+    public EstadoPublicacion estado(LocalDate hoy) {
+        if (!Boolean.TRUE.equals(disponible)) return EstadoPublicacion.NO_PUBLICADO;
+        if (fechaPublicacion != null && fechaPublicacion.isAfter(hoy)) return EstadoPublicacion.PROGRAMADO;
+        // Los registros publicados antes de la programación mantienen su visibilidad.
+        return EstadoPublicacion.DISPONIBLE;
+    }
+
+    public ResiduoRespuesta aRespuesta(LocalDate hoy) {
         return new ResiduoRespuesta(id, tipoResiduo, cantidad, unidadMedida, fecha,
-                descripcion, empresa, intercambioPor, disponible);
+                descripcion, empresa, intercambioPor, disponible, fechaPublicacion, estado(hoy));
     }
 }

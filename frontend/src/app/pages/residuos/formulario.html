@@ -4,7 +4,7 @@
     <div>
       <p class="eyebrow">UN MATERIAL, OTRA OPORTUNIDAD</p>
       <h1>{{ id ? 'Editar residuo' : 'Registrar residuo' }}</h1>
-      <p class="muted">Cuéntanos qué material tienes y cómo puede aprovecharse.</p>
+      <p class="muted">Describe el material y decide cuándo comenzará su próximo ciclo.</p>
     </div>
   </div>
   @if (error) {
@@ -15,7 +15,7 @@
   }
   @if (cargando) {
     <p role="status">Cargando registro…</p>
-  } @else {
+  } @else if (!cargaFallida) {
     <form #f="ngForm" (ngSubmit)="guardar(f)" class="panel form-panel">
       <div class="form-section">
         <h2>El material</h2>
@@ -30,11 +30,7 @@
             </select>
           </div>
           <div>
-            <label for="fecha">Fecha *</label
-            ><input type="date" id="fecha" name="fecha" [(ngModel)]="datos.fecha" required />
-          </div>
-          <div>
-            <label for="cantidad">Cantidad *</label
+            <label for="cantidad">Cantidad ({{ datos.unidadMedida }}) *</label
             ><input
               type="number"
               id="cantidad"
@@ -43,17 +39,11 @@
               required
               min="0"
               step="any"
-            />
-          </div>
-          <div>
-            <label for="unidadMedida">Unidad de medida *</label
-            ><input
-              id="unidadMedida"
-              name="unidadMedida"
-              [(ngModel)]="datos.unidadMedida"
-              required
-              placeholder="kg, toneladas, unidades…"
-            />
+            /><small class="muted">{{
+              datos.unidadMedida === 'kg'
+                ? 'Registra el peso en kilos, con los decimales que necesites.'
+                : 'Este registro conserva su unidad histórica.'
+            }}</small>
           </div>
           <div class="full">
             <label for="descripcion">Descripción</label
@@ -71,35 +61,82 @@
       </div>
       <div class="form-section">
         <h2>Su próximo ciclo</h2>
-        <div class="form-grid">
-          <div>
-            <label for="empresa">Empresa {{ datos.disponible ? '*' : '' }}</label
-            ><input
-              id="empresa"
-              name="empresa"
-              [(ngModel)]="datos.empresa"
-              maxlength="100"
-              [required]="datos.disponible"
-              placeholder="Nombre de la empresa"
-            />
+        <label class="checkbox-line exchange-toggle"
+          ><input
+            type="checkbox"
+            name="disponible"
+            [(ngModel)]="datos.disponible"
+            (ngModelChange)="cambiarIntercambio()"
+          /><span
+            ><strong>Habilitar intercambio</strong
+            ><small
+              >Selecciona qué acepta la empresa y desde qué fecha publicará el material.</small
+            ></span
+          ></label
+        >
+        @if (!datos.disponible) {
+          <p class="exchange-help">
+            Activa el intercambio para completar esta sección. El registro permanecerá en tu
+            inventario de administración.
+          </p>
+        }
+        <fieldset class="exchange-fields" [disabled]="!datos.disponible">
+          <legend class="sr-only">Datos de publicación para intercambio</legend>
+          <div class="form-grid">
+            <div>
+              <label for="empresa">Empresa {{ datos.disponible ? '*' : '' }}</label
+              ><input
+                id="empresa"
+                name="empresa"
+                [(ngModel)]="datos.empresa"
+                maxlength="100"
+                [required]="datos.disponible"
+                placeholder="Nombre de la empresa"
+              />
+            </div>
+            <div>
+              <label for="intercambioPor"
+                >Preferencia de intercambio {{ datos.disponible ? '*' : '' }}</label
+              ><select
+                id="intercambioPor"
+                name="intercambioPor"
+                [(ngModel)]="datos.intercambioPor"
+                [required]="datos.disponible"
+              >
+                <option value="">Selecciona el material que acepta</option>
+                @for (t of tipos; track t.value) {
+                  <option [value]="t.value">{{ t.label }}</option>
+                }
+                @if (preferenciaHistorica) {
+                  <option [value]="preferenciaHistorica">
+                    {{ preferenciaHistorica }} · preferencia anterior
+                  </option>
+                }
+              </select>
+            </div>
+            <div class="full">
+              <label for="fechaPublicacion"
+                >Fecha de publicación para intercambio {{ datos.disponible ? '*' : '' }}</label
+              ><input
+                type="date"
+                id="fechaPublicacion"
+                name="fechaPublicacion"
+                [(ngModel)]="datos.fechaPublicacion"
+                [required]="datos.disponible"
+                [min]="fechaMinima"
+              /><small class="muted"
+                >El usuario verá un aviso si eliges una fecha futura. El material entrará al
+                catálogo desde ese día, según el calendario de Lima.</small
+              >
+            </div>
           </div>
-          <div>
-            <label for="intercambioPor">Preferencia de intercambio</label
-            ><input
-              id="intercambioPor"
-              name="intercambioPor"
-              [(ngModel)]="datos.intercambioPor"
-              maxlength="300"
-              placeholder="¿Qué material buscas?"
-            />
-          </div>
-          <label class="checkbox-line full"
-            ><input type="checkbox" name="disponible" [(ngModel)]="datos.disponible" /><span
-              ><strong>Disponible para intercambio</strong
-              ><small>Publica este material como disponible para la comunidad.</small></span
-            ></label
-          >
-        </div>
+        </fieldset>
+        @if (datos.disponible && datos.fechaPublicacion) {
+          <p class="publication-preview">
+            Disponible para intercambio desde el
+            <strong>{{ fechaLegible(datos.fechaPublicacion) }}</strong>.
+          </p>
+        }
       </div>
       <div class="form-actions">
         <a class="button secondary" routerLink="/residuos">Cancelar</a

@@ -29,6 +29,11 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     private static final Logger LOG = LoggerFactory.getLogger(ApiExceptionHandler.class);
     private static final String ID_INVALIDO = "El id debe ser un número entero positivo dentro del rango de Long.";
 
+    @ExceptionHandler(DatosIntercambioInvalidosException.class)
+    ResponseEntity<ErrorRespuesta> datosIntercambio(DatosIntercambioInvalidosException ex) {
+        return error(HttpStatus.BAD_REQUEST, ex.getMessage(), ex.errores());
+    }
+
     @ExceptionHandler(RegistroNoEncontradoException.class)
     ResponseEntity<ErrorRespuesta> noEncontrado(RegistroNoEncontradoException ex) {
         return error(HttpStatus.NOT_FOUND, ex.getMessage(), Map.of());

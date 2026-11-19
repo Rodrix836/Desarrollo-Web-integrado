@@ -1,0 +1,485 @@
+GUÍA DE RECICLO: INTERCAMBIOS PROGRAMADOS
+16 de noviembre de 2026
+Repositorio: https://github.com/Rodrix836/Desarrollo-Web-integrado
+Rama: Rodrigo_Intercambios-Programados
+
+1. QUÉ SE IMPLEMENTÓ
+
+ADMIN puede guardar materiales en su inventario sin publicarlos.
+El check "Habilitar intercambio" activa los campos Empresa, Preferencia
+de intercambio y Fecha de publicación. Los tres se exigen al activarlo.
+
+Los materiales nuevos se registran en kilos (kg), con cantidad positiva.
+La preferencia se selecciona del catálogo de tipos de material.
+La fecha del formulario indica cuándo comienza la publicación y el
+intercambio. Ya no se pide la fecha histórica de registro en pantalla.
+
+Estados calculados por la API:
+  NO_PUBLICADO: check desmarcado, solo visible para ADMIN.
+  PROGRAMADO: check marcado y fecha futura.
+  DISPONIBLE: check marcado y fecha de hoy o anterior.
+
+La fecha se interpreta con el calendario de America/Lima.
+El paso de PROGRAMADO a DISPONIBLE se calcula al consultar la API. No
+necesita una tarea programada ni reiniciar el servidor a medianoche.
+
+USER ve los materiales disponibles. Un material futuro se anuncia en
+"Próximos intercambios", sin exponer su detalle completo antes de fecha.
+El aviso muestra empresa, material, fecha y mensaje. En la fecha indicada
+aparece "disponible desde hoy" y el material entra al catálogo.
+
+Al editar la fecha cambia el mismo aviso; al desmarcar o eliminar el
+material desaparece el aviso. No se crean avisos duplicados.
+Los avisos se cargan al entrar en Inicio o Residuos y con Actualizar.
+No son notificaciones push, por correo ni del sistema operativo.
+
+Residuos y Consultas permiten filtrar por preferencia. ADMIN también
+puede filtrar por estado. Actualizar conserva los filtros seleccionados.
+
+2. ABRIR EL PROYECTO Y OBTENER LOS CAMBIOS
+
+Abre PowerShell desde Windows. Ejecuta una línea por vez:
+
+  Set-Location 'C:\Users\2305498\Desarrollo-Web-integrado'
+  git status --short --branch
+  git fetch origin
+  git switch Rodrigo_Intercambios-Programados
+  git pull --ff-only origin Rodrigo_Intercambios-Programados
+  code .
+
+Si la rama todavía no existe localmente:
+  git switch --track origin/Rodrigo_Intercambios-Programados
+
+Si git status muestra modificaciones tuyas o de Claude, consérvalas antes
+de cambiar de rama. Puedes revisar esta entrega en otra carpeta sin
+tocar ese trabajo, con estos comandos:
+
+  Set-Location 'C:\Users\2305498'
+  git clone --branch Rodrigo_Intercambios-Programados https://github.com/Rodrix836/Desarrollo-Web-integrado.git ReCiclo-Programados
+  Set-Location '.\ReCiclo-Programados'
+  code .
+
+Si usas esa copia, sustituye Desarrollo-Web-integrado por
+ReCiclo-Programados en los Set-Location de las secciones siguientes.
+Cada copia tiene su propia base y clave: tus materiales anteriores
+permanecen en la carpeta original.
+
+Esta entrega está preparada en una rama y un PR hacia main. Mientras
+el PR esté abierto debes usar la rama indicada para probarla.
+Después del merge podrás usar git switch main y git pull --ff-only.
+
+3. REQUISITOS Y TERMINAL DE VISUAL STUDIO CODE
+
+En VS Code abre Terminal > New Terminal (Nueva terminal).
+Selecciona PowerShell. Comprueba:
+
+  java -version
+  mvn.cmd -version
+  node --version
+  npm.cmd --version
+
+Se verificó con Java 21, Node 22.17.1 y npm 10.9.2.
+Maven debe usar Java 21. El script de inicio selecciona la instalación
+de Adoptium usada en este equipo. Si necesitas ajustarla:
+
+  $env:JAVA_HOME = 'C:\Program Files\Eclipse Adoptium\jdk-21.0.3.9-hotspot'
+  $env:Path = "$env:JAVA_HOME\bin;$env:Path"
+
+Usa tu ruta real si instalaste Java en otra carpeta.
+Usa npm.cmd para evitar el bloqueo de npm.ps1 en PowerShell.
+
+No copies el texto PS C:\...> ni >>. Copia solo los comandos.
+No juntes dos comandos Maven en una sola línea.
+
+4. INICIAR LOS CUATRO SERVICIOS
+
+Abre cuatro terminales con el botón + del panel Terminal de VS Code.
+Ejecuta una API por terminal y espera "Tomcat started on port...".
+Conserva las cuatro terminales abiertas mientras usas la página.
+
+TERMINAL 1: AUTH, PUERTO 8081
+  Set-Location 'C:\Users\2305498\Desarrollo-Web-integrado'
+  powershell.exe -ExecutionPolicy Bypass -File .\scripts\iniciar-api.ps1 -Servicio auth
+
+TERMINAL 2: RESIDUOS, PUERTO 8082
+  Set-Location 'C:\Users\2305498\Desarrollo-Web-integrado'
+  powershell.exe -ExecutionPolicy Bypass -File .\scripts\iniciar-api.ps1 -Servicio residuos
+
+TERMINAL 3: CONSULTAS, PUERTO 8083
+  Set-Location 'C:\Users\2305498\Desarrollo-Web-integrado'
+  powershell.exe -ExecutionPolicy Bypass -File .\scripts\iniciar-api.ps1 -Servicio consultas
+
+TERMINAL 4: FRONTEND ANGULAR, PUERTO 4200
+  Set-Location 'C:\Users\2305498\Desarrollo-Web-integrado\frontend'
+  npm.cmd ci
+  npm.cmd start
+
+npm.cmd ci solo necesita repetirse cuando cambia package-lock.json o
+falta node_modules. Si ya terminó correctamente, ejecuta npm.cmd start.
+Si Angular pregunta por analytics puedes responder N y Enter.
+
+El frontend estará en:
+  http://localhost:4200
+
+También se admite:
+  http://127.0.0.1:4200
+
+El script comparte la clave JWT local de .local/jwt-secret.txt entre las
+APIs. No necesitas copiar secretos ni tokens para usar la página.
+
+Si todavía tienes versiones viejas de las APIs abiertas, detenlas con
+Ctrl+C y vuelve a iniciarlas con los scripts de esta copia actualizada.
+No inicies dos procesos en un mismo puerto.
+
+5. CUENTAS Y DEMOSTRACIÓN EN LA PÁGINA
+
+ADMIN de desarrollo:
+  Usuario: admin
+  Contraseña: admin123
+
+USER de desarrollo:
+  Usuario: user
+  Contraseña: user123
+
+Se crean en una base de Auth vacía. Si ya cambiaste esos usuarios,
+conservan los datos de tu base. El registro público crea cuentas USER.
+ADMIN puede cambiar roles en Usuarios; el usuario debe iniciar sesión
+de nuevo para recibir un JWT con el nuevo rol.
+
+DEMO A: MATERIAL SIN PUBLICAR
+  1. Inicia sesión como admin.
+  2. En Residuos pulsa Registrar residuo.
+  3. Elige tipo, cantidad positiva y descripción.
+  4. Deja desmarcado Habilitar intercambio.
+  5. Comprueba que Empresa, Preferencia y Fecha están deshabilitados.
+  6. Guarda. El detalle muestra No publicado.
+  7. Ese material solo aparece en el inventario ADMIN.
+
+DEMO B: PROGRAMAR PARA MAÑANA
+  1. Edita el material anterior o crea otro.
+  2. Marca Habilitar intercambio.
+  3. Completa la empresa.
+  4. Selecciona la preferencia del catálogo.
+  5. Elige mañana en Fecha de publicación para intercambio.
+  6. Guarda. Aparece Programado.
+  7. En Residuos filtra por Programado y por la preferencia elegida.
+  8. Pulsa Actualizar: se conservan tus filtros.
+
+DEMO C: VER EL AVISO COMO USER
+  1. Cierra la sesión ADMIN y entra como user, o usa otra sesión de
+     navegador e inicia sesión allí.
+  2. En Inicio y Residuos verás el aviso con empresa, material y fecha.
+  3. El registro futuro aún no aparece en la tabla disponible.
+  4. Su URL de detalle devuelve "No existe" al USER antes de fecha.
+     Esto lo protege el backend; no basta ocultarlo en Angular.
+
+DEMO D: REPROGRAMAR O CANCELAR
+  1. Como ADMIN, abre el detalle y pulsa Editar residuo.
+  2. Cambia la fecha futura y guarda.
+  3. Como USER, pulsa Actualizar. El mismo aviso muestra la nueva fecha.
+  4. Como ADMIN, desmarca Habilitar intercambio y guarda.
+  5. Se limpian preferencia y fecha de publicación; se conserva la
+     empresa anterior como dato del registro.
+  6. USER deja de ver el aviso al actualizar.
+  7. Al eliminar el registro también desaparece el aviso.
+
+DEMO E: PUBLICAR HOY SIN ESPERAR A MAÑANA
+  1. Como ADMIN, habilita el intercambio del material.
+  2. Completa empresa, preferencia y fecha de HOY.
+  3. Guarda. El estado es Disponible.
+  4. Como USER, actualiza Residuos: aparece en el catálogo y puedes
+     abrir su detalle. El aviso de ese día indica "desde hoy".
+  5. En Consultas filtra por empresa y preferencia: aparece el mismo
+     registro, leído desde la API de Residuos.
+
+6. VER Y MODIFICAR LO MISMO DESDE POWERSHELL
+
+Abre una quinta terminal. Mantén los cuatro servicios anteriores activos.
+Pega completo cada bloque, incluidas las llaves.
+
+LOGIN ADMIN
+  $loginArgs = @{
+      Uri = 'http://localhost:8081/api/auth/login'
+      Method = 'Post'
+      ContentType = 'application/json'
+      Body = '{"username":"admin","password":"admin123"}'
+  }
+  $sesion = Invoke-RestMethod @loginArgs
+  $headers = @{ Authorization = "Bearer $($sesion.token)" }
+  $base = 'http://localhost:8082/api/residuos'
+
+Auth actual recibe username y password, NO usuario y clave.
+No compartas el JWT. Si vence, vuelve a ejecutar el bloque LOGIN.
+
+LISTAR Y CONSULTAR AVISOS
+  $lista = Invoke-RestMethod -Uri $base -Headers $headers
+  ConvertTo-Json -InputObject $lista -Depth 5
+  Invoke-RestMethod -Uri "$base/avisos" -Headers $headers | ConvertTo-Json -Depth 5
+
+CREAR UN MATERIAL PROGRAMADO PARA MAÑANA
+  $zonaLima = [TimeZoneInfo]::FindSystemTimeZoneById('SA Pacific Standard Time')
+  $hoyLima = [TimeZoneInfo]::ConvertTimeFromUtc([DateTime]::UtcNow, $zonaLima).Date
+  $datos = @{
+      tipoResiduo = 'PLASTICO'
+      cantidad = 2.5
+      unidadMedida = 'kg'
+      descripcion = 'Botellas limpias para intercambio'
+      empresa = 'Empresa Demo'
+      intercambioPor = 'PAPEL_CARTON'
+      disponible = $true
+      fechaPublicacion = $hoyLima.AddDays(1).ToString('yyyy-MM-dd')
+  }
+  $crearArgs = @{
+      Uri = $base
+      Method = 'Post'
+      Headers = $headers
+      ContentType = 'application/json'
+      Body = ($datos | ConvertTo-Json -Compress)
+  }
+  $creado = Invoke-RestMethod @crearArgs
+  $id = $creado.id
+  $creado | Format-List
+
+La respuesta incluye id, fechaPublicacion y estadoPublicacion PROGRAMADO.
+fecha se asigna automáticamente como dato histórico si no la envías.
+Actualiza la página ADMIN para ver el mismo material.
+
+CONSULTAR EL DETALLE Y FILTRAR
+  Invoke-RestMethod -Uri "$base/$id" -Headers $headers | Format-List
+  $urlFiltro = $base + '?estado=PROGRAMADO&preferencia=PAPEL_CARTON'
+  Invoke-RestMethod -Uri $urlFiltro -Headers $headers | ConvertTo-Json -Depth 5
+
+CONSULTAS Y EMPRESAS, PUERTO 8083
+  $consulta = 'http://localhost:8083/api/consultas/residuos?empresa=Demo&estado=PROGRAMADO&preferencia=PAPEL_CARTON'
+  Invoke-RestMethod -Uri $consulta -Headers $headers | ConvertTo-Json -Depth 5
+  Invoke-RestMethod -Uri 'http://localhost:8083/api/consultas/empresas' -Headers $headers
+
+PUBLICAR HOY Y ACTUALIZAR CANTIDAD
+  $datos.fechaPublicacion = $hoyLima.ToString('yyyy-MM-dd')
+  $datos.cantidad = 3.75
+  $editarArgs = @{
+      Uri = "$base/$id"
+      Method = 'Put'
+      Headers = $headers
+      ContentType = 'application/json'
+      Body = ($datos | ConvertTo-Json -Compress)
+  }
+  Invoke-RestMethod @editarArgs | Format-List
+
+La respuesta ahora muestra DISPONIBLE. Actualiza el listado USER.
+
+CANCELAR LA PUBLICACIÓN, CONSERVANDO EL MATERIAL EN INVENTARIO
+  $datos.disponible = $false
+  $editarArgs.Body = $datos | ConvertTo-Json -Compress
+  Invoke-RestMethod @editarArgs | Format-List
+
+Aunque el cliente envíe los datos anteriores, el backend limpia la
+preferencia y la fecha al deshabilitar el intercambio.
+
+PROBAR LA VISIBILIDAD USER
+  $loginArgs.Body = '{"username":"user","password":"user123"}'
+  $sesionUser = Invoke-RestMethod @loginArgs
+  $headersUser = @{ Authorization = "Bearer $($sesionUser.token)" }
+  Invoke-RestMethod -Uri $base -Headers $headersUser | ConvertTo-Json -Depth 5
+  Invoke-RestMethod -Uri "$base/avisos" -Headers $headersUser | ConvertTo-Json -Depth 5
+
+Un GET del material cancelado con headersUser devuelve 404, igual que un
+programado que todavía no se ha publicado. Consultas tampoco lo expone.
+Un POST, PUT o DELETE con USER devuelve 403.
+
+ELIMINAR EL REGISTRO DE PRUEBA CON ADMIN
+  Invoke-RestMethod -Uri "$base/$id" -Method Delete -Headers $headers
+
+Un DELETE correcto devuelve 204 y no imprime un cuerpo. El id siempre
+se toma de la creación; no supongas que es 1.
+
+7. VER LAS APIS Y SWAGGER
+
+Frontend y login visual:
+  http://localhost:4200/login
+
+Swagger de Residuos:
+  http://localhost:8082/swagger-ui/index.html
+
+Los scripts habilitan el perfil demo de Residuos, que permite Swagger.
+Con el login ADMIN de la sección 6, copia el token:
+
+  Set-Clipboard -Value $sesion.token
+
+En Swagger pulsa Authorize, pega SOLO el JWT, pulsa Authorize y Close.
+Abre un endpoint, Try it out y Execute.
+
+Endpoints principales:
+  GET    /api/residuos
+  GET    /api/residuos/avisos
+  GET    /api/residuos/{id}
+  POST   /api/residuos
+  PUT    /api/residuos/{id}
+  DELETE /api/residuos/{id}
+
+Filtros de Residuos:
+  estado=NO_PUBLICADO | PROGRAMADO | DISPONIBLE
+  preferencia=PLASTICO | PAPEL_CARTON | VIDRIO | METAL | ORGANICO | OTROS
+
+Consultas en 8083:
+  GET /api/consultas/residuos
+  GET /api/consultas/empresas
+  Filtros: empresa, tipo, disponible, cantidadMinima, estado, preferencia.
+
+disponible=true significa "intercambio habilitado"; para disponibilidad
+actual usa estado=DISPONIBLE. Residuos calcula ese estado en el servidor.
+Pedir estado=PROGRAMADO como USER no permite saltar la restricción de rol.
+
+8. DATOS ANTERIORES Y PERSISTENCIA
+
+Auth conserva usuarios en auth-api/data/authdb.mv.db.
+Residuos guarda materiales en residuos-api/data/residuosdb.mv.db.
+No borres esas carpetas si quieres conservar tus datos.
+
+La columna fecha_publicacion es nullable y Hibernate la añade al abrir
+una base anterior. Un registro antiguo habilitado y sin esa fecha se
+mantiene DISPONIBLE, para no ocultar las publicaciones que ya existían.
+En la edición se propone hoy y se exige fecha si el intercambio sigue
+habilitado. La fecha histórica "fecha" no se cambia por esa acción.
+
+Las unidades históricas, por ejemplo toneladas, se conservan. El
+formulario muestra su unidad original; los registros nuevos usan kg.
+No hay conversiones automáticas de peso. Las preferencias antiguas de
+texto libre se muestran como "preferencia anterior" y pueden conservarse
+sin cambios o sustituirse por un valor del catálogo.
+
+Para comprobar la persistencia:
+  1. Crea un material y anota su ID.
+  2. Detén solo Residuos con Ctrl+C en su terminal.
+  3. Reinícialo con el mismo script, desde la misma copia del repositorio.
+  4. Vuelve a iniciar sesión si hace falta y actualiza.
+  5. El material, cantidad y fecha de publicación permanecen.
+
+Cambiar de rama no copia los datos entre carpetas del proyecto.
+La página Thymeleaf antigua en 8080 tiene otra persistencia y es una
+versión anterior. Usa 4200 para este sistema de tres APIs.
+
+9. COMANDOS DE VERIFICACIÓN
+
+Detén las APIs antes de clean verify para evitar bloqueos del JAR en
+Windows. Desde la raíz, con Java 21, ejecuta una línea por vez:
+
+  mvn.cmd -f auth-api/pom.xml clean verify
+  mvn.cmd -f residuos-api/pom.xml clean verify
+  mvn.cmd -f consultas-api/pom.xml clean verify
+
+Desde frontend:
+  npm.cmd run build
+
+Para las pruebas de navegador, primero inicia las tres APIs y Angular
+como en la sección 4; después, en otra terminal dentro de frontend:
+  npm.cmd run test:e2e
+
+Las pruebas usan Google Chrome instalado y modifican datos de prueba.
+Ejecuta estas pruebas sobre tus bases de desarrollo.
+
+Las pruebas backend verifican JWT, roles, CRUD, validaciones, visibilidad,
+avisos, cancelación, filtros, datos anteriores y cambio de día en Lima.
+Usan un Clock de prueba para simular medianoche sin cambiar el reloj de
+Windows. Cambiar el reloj del equipo puede afectar JWT y otros programas.
+
+Resultados verificados en esta entrega: Auth 6, Residuos 53 y Consultas 6
+pruebas, todas sin fallos ni omisiones. Compilación Angular correcta y
+6 recorridos de navegador completos. Se comprobó una base H2 del esquema
+anterior y la conservación de la programación después de reiniciar.
+Detalle técnico: docs/VERIFICACION_INTERCAMBIOS.md.
+
+10. PROBLEMAS QUE YA TUVIMOS Y CÓMO RESOLVERLOS
+
+"Unknown lifecycle phase verifymvn":
+  Se pegaron dos comandos juntos. Ejecuta SOLO:
+  mvn.cmd -f residuos-api/pom.xml clean verify
+
+"No goals have been specified":
+  Se cortó el comando Maven. Usa los scripts completos de la sección 4.
+
+"Falta un argumento para ContentType":
+  Falta 'application/json'. Usa los bloques con ContentType completo.
+
+PowerShell muestra >>:
+  Está esperando cerrar una comilla o llave. Si pegaste solo una parte,
+  pulsa Ctrl+C y pega el bloque completo. No copies PS> ni >>.
+
+Error 405 al visitar /api/auth/login:
+  El navegador está enviando GET, pero el login requiere POST.
+  Entra por http://localhost:4200/login o usa el bloque LOGIN de esta guía.
+
+Error 401:
+  Inicia sesión de nuevo. Auth y Residuos deben usar el script de la
+  misma copia del repositorio para compartir la clave JWT.
+
+Error 403:
+  USER no puede escribir ni administrar usuarios. Usa admin/admin123.
+  Si ocurre al iniciar sesión, reinicia las APIs actualizadas y usa
+  localhost:4200 o 127.0.0.1:4200, los dos orígenes admitidos.
+
+Error 400 al habilitar el intercambio:
+  Revisa empresa, preferencia del catálogo y fecha de hoy/futura en Lima.
+  Un material nuevo necesita unidad kg y cantidad mayor que cero.
+
+No veo el material como USER:
+  Comprueba con ADMIN si está No publicado o Programado. Un programado
+  se muestra como aviso y entra al catálogo en su fecha de publicación.
+
+No veo avisos o filtros actualizados:
+  Pulsa Actualizar en Inicio/Residuos o Buscar materiales en Consultas.
+  Comprueba que Residuos y Consultas se reiniciaron con esta versión.
+
+cd frontend busca frontend\frontend:
+  Ya estabas dentro de frontend. No repitas cd frontend.
+  Puedes usar siempre el Set-Location absoluto de la sección 4.
+
+snpm.cmd no existe:
+  Es un error de escritura. El comando correcto es npm.cmd start.
+
+Puerto ocupado:
+  Detén la instancia anterior con Ctrl+C en su terminal. No detengas
+  procesos ajenos al proyecto ni abras una segunda instancia del servicio.
+
+Para apagar el sistema:
+  Pulsa Ctrl+C en cada una de las cuatro terminales.
+
+11. EXPLICACIÓN TÉCNICA PARA PRESENTAR EL CAMBIO
+
+Angular muestra el formulario, valida entradas y envía JSON.
+Auth autentica al usuario y firma su JWT.
+El interceptor Angular adjunta Authorization: Bearer a las APIs.
+Spring Security valida firma, expiración y rol.
+Controller recibe la petición y aplica @Valid.
+Service aplica las reglas de intercambio y fecha.
+JpaRepository e Hibernate persisten RegistroResiduo en H2.
+Consultas reenvía el JWT a Residuos y filtra solo la información permitida.
+
+¿Por qué validar también en backend?
+Porque un cliente puede enviar HTTP sin usar Angular. La API rechaza
+publicaciones incompletas y protege la visibilidad independientemente
+de los filtros o botones que se vean en pantalla.
+
+¿Por qué fecha y fechaPublicacion?
+fecha conserva el historial del contrato anterior. fechaPublicacion
+decide cuándo comienza el intercambio. Son conceptos distintos.
+
+¿Por qué un estado calculado?
+Evita guardar un PROGRAMADO que quede desactualizado cuando llegue el
+día. Cada lectura usa la fecha de Lima y devuelve el estado correcto.
+
+¿Se guardan notificaciones separadas?
+No. Se derivan de los registros habilitados y su fecha. El ID del aviso
+es el del material; editar o eliminar actualiza la fuente original.
+
+¿Qué puede hacer USER?
+Ver el catálogo disponible, sus detalles, avisos y Consultas.
+No puede modificar materiales ni ver detalles privados o futuros.
+
+¿Qué limitaciones quedan?
+No hay reservas, transacciones de intercambio, correos ni push.
+La fecha tiene precisión de día, no de hora.
+La pantalla se actualiza al entrar o pulsar Actualizar.
+El catálogo de preferencias reutiliza los seis tipos existentes; no se
+añadió un CRUD independiente para crear tipos de material.
+Consultas usa HTTP y filtros Java; el JPQL previo queda en la versión raíz.

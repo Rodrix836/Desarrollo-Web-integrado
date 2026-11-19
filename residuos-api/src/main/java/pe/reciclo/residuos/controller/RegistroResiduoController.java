@@ -5,40 +5,38 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import pe.reciclo.residuos.dto.AvisoIntercambio;
 import pe.reciclo.residuos.dto.ResiduoRespuesta;
 import pe.reciclo.residuos.dto.ResiduoSolicitud;
+import pe.reciclo.residuos.model.EstadoPublicacion;
+import pe.reciclo.residuos.model.TipoResiduo;
 import pe.reciclo.residuos.service.RegistroResiduoService;
-
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/residuos")
 @SecurityRequirement(name = "bearerAuth")
 public class RegistroResiduoController {
-
     private final RegistroResiduoService service;
 
-    public RegistroResiduoController(RegistroResiduoService service) {
-        this.service = service;
-    }
+    public RegistroResiduoController(RegistroResiduoService service) { this.service = service; }
 
     @GetMapping
-    public List<ResiduoRespuesta> listar() {
-        return service.listar();
+    public List<ResiduoRespuesta> listar(Authentication usuario,
+                                         @RequestParam(required = false) EstadoPublicacion estado,
+                                         @RequestParam(required = false) TipoResiduo preferencia) {
+        return service.listar(esAdministrador(usuario), estado, preferencia);
     }
 
+    @GetMapping("/avisos")
+    public List<AvisoIntercambio> avisos() { return service.avisos(); }
+
     @GetMapping("/{id}")
-    public ResiduoRespuesta consultar(@PathVariable @Positive long id) {
-        return service.consultar(id);
+    public ResiduoRespuesta consultar(@PathVariable @Positive long id, Authentication usuario) {
+        return service.consultar(id, esAdministrador(usuario));
     }
 
     @PostMapping
@@ -51,8 +49,7 @@ public class RegistroResiduoController {
     }
 
     @PutMapping("/{id}")
-    public ResiduoRespuesta actualizar(@PathVariable @Positive long id,
-                                        @Valid @RequestBody ResiduoSolicitud solicitud) {
+    public ResiduoRespuesta actualizar(@PathVariable @Positive long id, @Valid @RequestBody ResiduoSolicitud solicitud) {
         return service.actualizar(id, solicitud);
     }
 
@@ -61,5 +58,9 @@ public class RegistroResiduoController {
     public ResponseEntity<Void> eliminar(@PathVariable @Positive long id) {
         service.eliminar(id);
         return ResponseEntity.noContent().build();
+    }
+
+    private boolean esAdministrador(Authentication usuario) {
+        return usuario.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
     }
 }
