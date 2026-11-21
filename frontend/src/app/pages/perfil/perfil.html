@@ -1,0 +1,31 @@
+<section class="page perfil-page">
+  <div class="page-heading">
+    <div>
+      <p class="eyebrow">TU CUENTA</p>
+      <h1>Mi perfil</h1>
+      <p class="muted">Datos de la sesión actual.</p>
+    </div>
+    <a class="button secondary" routerLink="/">Volver al inicio</a>
+  </div>
+
+  @if (cargando) {
+  <p class="empty">Cargando perfil…</p>
+  } @else if (error) {
+  <p class="alert error" role="alert">{{ error }}</p>
+  } @else if (auth.usuario(); as u) {
+  <div class="panel perfil-card">
+    <div class="perfil-row">
+      <span class="perfil-label">Nombre</span>
+      <strong>{{ u.nombre }}</strong>
+    </div>
+    <div class="perfil-row">
+      <span class="perfil-label">Usuario</span>
+      <strong>{{ u.username }}</strong>
+    </div>
+    <div class="perfil-row">
+      <span class="perfil-label">Rol</span>
+      <span class="status rol-badge">{{ u.rol }}</span>
+    </div>
+  </div>
+  }
+</section>

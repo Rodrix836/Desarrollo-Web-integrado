@@ -5,6 +5,9 @@
       <h1>Hola, {{ auth.usuario()?.nombre }}.</h1>
       <p class="muted">Cada registro es una oportunidad para volver a empezar.</p>
     </div>
+
+    <a class="button secondary" routerLink="/perfil">Mi perfil</a>
+
     @if (auth.puedeConsultar()) {
       <button class="button secondary" (click)="cargar()" [disabled]="cargando">Actualizar</button>
     }

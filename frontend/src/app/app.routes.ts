@@ -34,6 +34,10 @@ export const routes: Routes = [
         canActivate: [adminGuard],
         loadComponent: () => import('./pages/usuarios/usuarios').then((m) => m.UsuariosPage),
       },
+      {
+        path: 'perfil',
+        loadComponent: () => import('./pages/perfil/perfil').then((m) => m.PerfilComponent),
+      },
     ],
   },
   { path: '**', redirectTo: '' },
