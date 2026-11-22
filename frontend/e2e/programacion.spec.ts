@@ -1,3 +1,4 @@
+import { navegar, salir, abrirMenu } from './ayudas';
 import { test, expect, Page } from '@playwright/test';
 
 function fechaLima(dias = 0): string {
@@ -49,7 +50,6 @@ test('programar, filtrar, reprogramar, cancelar y publicar conserva la visibilid
   const empresa = 'Programación E2E ' + Date.now();
   const manana = fechaLima(1);
   const despues = fechaLima(2);
-  await page.setViewportSize({ width: 1440, height: 1000 });
   await login(page, 'admin');
   await page.getByRole('link', { name: '+ Registrar residuo' }).click();
   await page.getByLabel('Habilitar intercambio').check();
@@ -62,7 +62,7 @@ test('programar, filtrar, reprogramar, cancelar y publicar conserva la visibilid
   await expect(page.getByText('Programado', { exact: true })).toBeVisible();
   const detalle = page.url();
 
-  await page.getByRole('link', { name: 'Residuos', exact: true }).click();
+  await navegar(page, 'Residuos');
   await page.getByLabel('Estado de publicación').selectOption('PROGRAMADO');
   await page.getByLabel('Preferencia de intercambio').selectOption('METAL');
   await page.getByLabel('Buscar material o empresa').fill(empresa);
@@ -78,7 +78,7 @@ test('programar, filtrar, reprogramar, cancelar y publicar conserva la visibilid
   await login(user, 'user');
   let aviso = user.getByRole('article').filter({ hasText: empresa });
   await expect(aviso).toContainText(fechaVisible(manana));
-  await user.getByRole('link', { name: 'Residuos', exact: true }).click();
+  await navegar(user, 'Residuos');
   await expect(user.getByRole('row').filter({ hasText: empresa })).toHaveCount(0);
   await user.goto(detalle);
   await expect(user.getByRole('alert')).toContainText('No existe');
@@ -114,9 +114,10 @@ test('programar, filtrar, reprogramar, cancelar y publicar conserva la visibilid
   await page.getByRole('button', { name: 'Guardar cambios' }).click();
   await expect(page.getByText('Disponible', { exact: true })).toBeVisible();
   await user.goto('/residuos');
+  await user.getByLabel('Buscar material o empresa').fill(empresa);
   await expect(user.getByRole('row').filter({ hasText: empresa })).toHaveCount(1);
   await expect(user.getByRole('article').filter({ hasText: empresa })).toContainText('desde hoy');
-  await user.getByRole('link', { name: 'Consultas', exact: true }).click();
+  await navegar(user, 'Consultas');
   await user.getByLabel('Empresa', { exact: true }).fill(empresa);
   await user.getByLabel('Preferencia de intercambio').selectOption('PAPEL_CARTON');
   await user.getByRole('button', { name: 'Buscar materiales' }).click();
