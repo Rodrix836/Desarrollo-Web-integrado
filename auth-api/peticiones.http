@@ -36,5 +36,40 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "rol": "EMPRESA"
+  "rol": "ADMIN"
+}
+### Renovar token
+POST {{baseUrl}}/api/auth/refresh
+Authorization: Bearer {{token}}
+
+### Editar nombre de un usuario (ADMIN)
+PUT {{baseUrl}}/api/usuarios/2
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nombre": "Usuario editado"
+}
+
+### Desactivar / activar cuenta (ADMIN)
+PUT {{baseUrl}}/api/usuarios/2/estado
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "activo": false
+}
+
+### Eliminar cuenta (ADMIN)
+DELETE {{baseUrl}}/api/usuarios/2
+Authorization: Bearer {{token}}
+
+### Cambiar mi contraseña
+PUT {{baseUrl}}/api/auth/me/password
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "actual": "admin123",
+  "nueva": "admin1234"
 }

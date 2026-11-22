@@ -39,6 +39,16 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         return error(HttpStatus.NOT_FOUND, ex.getMessage(), Map.of());
     }
 
+    @ExceptionHandler(SolicitudNoEncontradaException.class)
+    ResponseEntity<ErrorRespuesta> solicitudNoEncontrada(SolicitudNoEncontradaException ex) {
+        return error(HttpStatus.NOT_FOUND, ex.getMessage(), Map.of());
+    }
+
+    @ExceptionHandler(ConflictoException.class)
+    ResponseEntity<ErrorRespuesta> conflicto(ConflictoException ex) {
+        return error(HttpStatus.CONFLICT, ex.getMessage(), Map.of());
+    }
+
     @ExceptionHandler(OptimisticLockingFailureException.class)
     ResponseEntity<ErrorRespuesta> cambioConcurrente() {
         return error(HttpStatus.CONFLICT, "Otro usuario modificó el registro. Vuelve a consultar los datos.", Map.of());
@@ -72,7 +82,12 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
             if (resultado instanceof ParameterErrors cuerpo) {
                 agregarErrores(cuerpo, errores);
             } else {
-                errores.put("id", ID_INVALIDO);
+                String nombre = resultado.getMethodParameter().getParameterName();
+                if (nombre == null || nombre.equals("id")) {
+                    errores.put("id", ID_INVALIDO);
+                } else {
+                    errores.put(nombre, "Valor fuera del rango permitido.");
+                }
             }
         });
         String mensaje = errores.size() == 1 && errores.containsKey("id")

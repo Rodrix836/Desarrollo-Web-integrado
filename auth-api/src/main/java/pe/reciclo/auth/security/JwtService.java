@@ -17,11 +17,12 @@ public class JwtService {
     private final long expirationMs;
 
     public JwtService(
-            @Value("${reciclo.jwt.secret}") String secret,
+            @Value("${reciclo.jwt.secret:}") String secret,
             @Value("${reciclo.jwt.expiration-ms:3600000}") long expirationMs) {
-        byte[] bytes = secret.getBytes(StandardCharsets.UTF_8);
+        byte[] bytes = secret == null ? new byte[0] : secret.getBytes(StandardCharsets.UTF_8);
         if (bytes.length < 32) {
-            throw new IllegalStateException("reciclo.jwt.secret debe tener al menos 32 bytes");
+            throw new IllegalStateException(
+                    "Configura RECICLO_JWT_SECRET con una clave de al menos 32 bytes (usa scripts/iniciar-api.ps1).");
         }
         this.key = Keys.hmacShaKeyFor(bytes);
         this.expirationMs = expirationMs;
@@ -35,6 +36,10 @@ public class JwtService {
                 .expiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(key, Jwts.SIG.HS256)
                 .compact();
+    }
+
+    public long getExpirationMs() {
+        return expirationMs;
     }
 
     public String extraerUsuario(String token) {

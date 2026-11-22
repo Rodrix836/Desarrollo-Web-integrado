@@ -44,6 +44,7 @@ public class SecurityConfig {
 
     private static final String BASE = "/api/residuos";
     private static final String DETALLE = BASE + "/{id}";
+    private static final String SOLICITUDES = "/api/solicitudes";
 
     @Bean
     SecurityFilterChain seguridad(HttpSecurity http, ObjectMapper mapper,
@@ -64,10 +65,17 @@ public class SecurityConfig {
                         permisos.requestMatchers(HttpMethod.GET, "/swagger-ui.html", "/swagger-ui/**",
                                 "/v3/api-docs", "/v3/api-docs/**").permitAll();
                     }
-                    permisos.requestMatchers(HttpMethod.GET, BASE, BASE + "/avisos", DETALLE).hasAnyRole("USER", "ADMIN")
+                    permisos.requestMatchers(HttpMethod.GET, BASE, BASE + "/avisos", BASE + "/pagina",
+                                    BASE + "/estadisticas", DETALLE).hasAnyRole("USER", "ADMIN")
                             .requestMatchers(HttpMethod.POST, BASE).hasRole("ADMIN")
                             .requestMatchers(HttpMethod.PUT, DETALLE).hasRole("ADMIN")
                             .requestMatchers(HttpMethod.DELETE, DETALLE).hasRole("ADMIN")
+                            // USER solicita intercambios; ADMIN los revisa y responde.
+                            .requestMatchers(HttpMethod.POST, SOLICITUDES).hasRole("USER")
+                            .requestMatchers(HttpMethod.GET, SOLICITUDES + "/mias").hasRole("USER")
+                            .requestMatchers(HttpMethod.PUT, SOLICITUDES + "/{id}/cancelar").hasRole("USER")
+                            .requestMatchers(HttpMethod.GET, SOLICITUDES).hasRole("ADMIN")
+                            .requestMatchers(HttpMethod.PUT, SOLICITUDES + "/{id}/decision").hasRole("ADMIN")
                             .anyRequest().denyAll();
                 })
                 .exceptionHandling(errores -> errores.authenticationEntryPoint(sinToken).accessDeniedHandler(sinPermiso))
@@ -115,6 +123,8 @@ public class SecurityConfig {
         var source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration(BASE, cors);
         source.registerCorsConfiguration(BASE + "/**", cors);
+        source.registerCorsConfiguration(SOLICITUDES, cors);
+        source.registerCorsConfiguration(SOLICITUDES + "/**", cors);
         return source;
     }
 

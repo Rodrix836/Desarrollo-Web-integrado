@@ -3,11 +3,13 @@ package pe.reciclo.residuos.dto;
 import pe.reciclo.residuos.model.EstadoPublicacion;
 import pe.reciclo.residuos.model.TipoResiduo;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 
 public record ResiduoRespuesta(
         Long id, TipoResiduo tipoResiduo, BigDecimal cantidad, String unidadMedida,
         LocalDate fecha, String descripcion, String empresa, String intercambioPor, Boolean disponible,
-        LocalDate fechaPublicacion, EstadoPublicacion estadoPublicacion
+        LocalDate fechaPublicacion, EstadoPublicacion estadoPublicacion,
+        String creadoPor, Instant creadoEn, String actualizadoPor, Instant actualizadoEn
 ) {
 }

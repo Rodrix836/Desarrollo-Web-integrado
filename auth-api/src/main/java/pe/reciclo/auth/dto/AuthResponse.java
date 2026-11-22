@@ -4,6 +4,7 @@ public record AuthResponse(
         String token,
         String username,
         String rol,
-        String nombre
+        String nombre,
+        long expiraEnMs
 ) {
 }
