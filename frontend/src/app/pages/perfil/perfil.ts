@@ -7,48 +7,22 @@ import { AuthService } from '../../core/auth.service';
   standalone: true,
   imports: [RouterLink],
   templateUrl: './perfil.html',
-  styles: [
-    `
-      .perfil-page {
-        max-width: 520px;
-      }
-      .perfil-card {
-        display: flex;
-        flex-direction: column;
-        gap: 0;
-        padding: 0.25rem 0;
-      }
-      .perfil-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1rem;
-        padding: 1rem 1.25rem;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-      }
-      .perfil-row:last-child {
-        border-bottom: none;
-      }
-      .perfil-label {
-        font-size: 0.85rem;
-        color: #6b7280;
-      }
-      .rol-badge {
-        display: inline-block;
-        padding: 0.25rem 0.75rem;
-        border-radius: 999px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        background: #e8f0ec;
-        color: #1a4d3e;
-      }
-    `,
-  ],
 })
 export class PerfilComponent implements OnInit {
   auth = inject(AuthService);
   error = '';
   cargando = true;
+
+  descripcionRol(rol: string): string {
+    switch (rol) {
+      case 'ADMIN':
+        return 'Gestiona materiales, programa intercambios y administra usuarios.';
+      case 'USER':
+        return 'Consulta el catálogo disponible y recibe avisos de intercambio.';
+      default:
+        return 'Cuenta de empresa. Requiere un rol USER o ADMIN para ver el catálogo.';
+    }
+  }
 
   ngOnInit() {
     if (!this.auth.token()) {

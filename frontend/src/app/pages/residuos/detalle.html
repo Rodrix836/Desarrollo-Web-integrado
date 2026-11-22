@@ -5,10 +5,15 @@
   }
   @if (residuo; as r) {
     <div class="page-heading">
-      <div>
+      <div class="detail-title">
+        <span class="material-icon large" [attr.data-tipo]="r.tipoResiduo" aria-hidden="true">{{
+          nombreTipo(r.tipoResiduo).charAt(0)
+        }}</span>
+        <div>
         <p class="eyebrow">REGISTRO #{{ r.id }}</p>
         <h1>{{ nombreTipo(r.tipoResiduo) }}</h1>
         <p class="muted">{{ r.empresa || 'Sin empresa registrada' }}</p>
+        </div>
       </div>
       <span
         class="status"

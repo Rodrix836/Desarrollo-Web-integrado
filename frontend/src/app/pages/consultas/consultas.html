@@ -78,16 +78,22 @@
   </div>
   <div class="panel">
     @if (cargando) {
-      <p class="empty" role="status">Consultando materiales…</p>
+      <div class="skeleton-list" role="status">
+        <span class="sr-only">Consultando materiales…</span>
+        @for (n of [1, 2, 3]; track n) {
+          <div class="skeleton-row"><i></i><b></b><b class="short"></b></div>
+        }
+      </div>
     } @else if (!datos.length && consultado) {
       <div class="empty">
+        <span class="empty-symbol" aria-hidden="true">⌕</span>
         <h2>No hay materiales con estos filtros</h2>
         <p>Cambia los criterios para explorar otras oportunidades.</p>
       </div>
     } @else {
       @for (r of datos; track r.id) {
         <a class="material-row" [routerLink]="['/residuos', r.id]"
-          ><span class="material-icon">{{ nombreTipo(r.tipoResiduo).charAt(0) }}</span>
+          ><span class="material-icon" [attr.data-tipo]="r.tipoResiduo">{{ nombreTipo(r.tipoResiduo).charAt(0) }}</span>
           <div>
             <strong>{{ nombreTipo(r.tipoResiduo) }}</strong><small
               >{{ r.empresa || 'Sin empresa' }} ·
@@ -102,7 +108,7 @@
             [class.available]="r.estadoPublicacion === 'DISPONIBLE'"
             [class.scheduled]="r.estadoPublicacion === 'PROGRAMADO'"
             >{{ nombreEstado(r.estadoPublicacion) }}</span
-          ><span>↗</span></a
+          ><span aria-hidden="true">↗</span></a
         >
       }
     }

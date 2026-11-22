@@ -54,7 +54,12 @@
       <strong>Inventario de la comunidad</strong><span>{{ filtrados.length }} registros</span>
     </div>
     @if (cargando) {
-      <p class="empty" role="status">Cargando materiales…</p>
+      <div class="skeleton-list" role="status">
+        <span class="sr-only">Cargando materiales…</span>
+        @for (n of [1, 2, 3, 4]; track n) {
+          <div class="skeleton-row"><i></i><b></b><b class="short"></b></div>
+        }
+      </div>
     } @else if (!filtrados.length) {
       <div class="empty">
         <span class="empty-symbol">↻</span>
@@ -84,7 +89,7 @@
             <tr>
               <td>
                 <a class="material-name" [routerLink]="['/residuos', r.id]"
-                  ><span class="material-icon">{{ nombreTipo(r.tipoResiduo).charAt(0) }}</span>
+                  ><span class="material-icon" [attr.data-tipo]="r.tipoResiduo">{{ nombreTipo(r.tipoResiduo).charAt(0) }}</span>
                   <div>
                     <strong>{{ nombreTipo(r.tipoResiduo) }}</strong><small
                       >#{{ r.id }} · {{ r.descripcion || 'Sin descripción' }}</small
