@@ -1,14 +1,110 @@
-## Intercambios programados
+# ReCiclo
 
-El administrador habilita el intercambio, elige la preferencia y programa la publicación. USER ve el catálogo disponible y avisos de fechas futuras. Consulta la [guía actualizada de Windows](docs/GUIA_INTERCAMBIOS_PROGRAMADOS.txt) para abrir esta rama, iniciar las tres APIs y Angular, y probar cada función.
+Plataforma académica de Desarrollo Web Integrado para registrar residuos reciclables e intercambiarlos. No incluye compras, ventas ni pagos. Esta entrega se desarrolla en `mejoras-integrales`.
 
-## Frontend Angular conectado
+## Arquitectura actual
 
-La nueva interfaz está en frontend y se abre en http://localhost:4200. Conecta Auth (8081), Residuos (8082) y Consultas (8083), con login, registro, CRUD visual, filtros y roles.
+| Módulo | Puerto | Tecnología y responsabilidad |
+| --- | --- | --- |
+| `auth-api` | 8081 | Java 21, Spring Boot 3.5, JPA/H2 y JWT: autenticación y cuentas |
+| `residuos-api` | 8082 | Spring Boot 3.5, JPA/H2 y OAuth2 Resource Server: materiales y solicitudes |
+| `consultas-api` | 8083 | Spring Boot 3.5 y RestClient: filtros sobre los materiales autorizados |
+| `frontend` | 4200 | Angular 20 standalone, signals, proxy y pruebas Playwright |
+| Raíz (`src/`, `pom.xml`) | 8080 | Aplicación anterior independiente con Thymeleaf |
 
-Consulta [la guía Windows con comandos completos](docs/GUIA_FRONTEND_WINDOWS.txt) para iniciar los cuatro procesos y demostrar el sistema. Los comandos anteriores del Auth integrado en la aplicación raíz corresponden a esa versión previa.
+Consultas reenvía el JWT a Residuos, que aplica los permisos. El script de inicio genera la clave compartida en `.local/jwt-secret.txt`. Las APIs conservan sus bases locales en sus directorios `data/`. Estas ubicaciones están ignoradas por Git.
 
-# ReCiclo — versión anterior en la aplicación raíz
+## Roles y permisos
+
+| Rol | Permisos |
+| --- | --- |
+| ADMIN | Registra, edita y elimina materiales, ve todo el inventario, responde solicitudes y administra usuarios |
+| USER | Consulta el catálogo disponible, envía propuestas de intercambio y cancela las suyas pendientes |
+
+Las cuentas nuevas reciben USER. Empresa es un dato de texto del material que identifica quién lo ofrece. ADMIN no puede quitarse su propio rol, desactivarse ni eliminarse. Los controles administrativos de su cuenta están deshabilitados; puede cambiar su nombre en Mi perfil.
+
+## Iniciar en Windows
+
+Requisitos: Java 21, Maven, Node.js compatible con Angular 20 (esta entrega usa Node 22) y Chrome para las pruebas. Desde la raíz, abre una terminal por API:
+
+```powershell
+.\scripts\iniciar-api.ps1 -Servicio auth
+```
+
+```powershell
+.\scripts\iniciar-api.ps1 -Servicio residuos
+```
+
+```powershell
+.\scripts\iniciar-api.ps1 -Servicio consultas
+```
+
+En una cuarta terminal:
+
+```powershell
+cd frontend
+npm ci
+npm start
+```
+
+Abre [ReCiclo](http://localhost:4200). Cuentas demo: `admin` / `admin123` y `user` / `user123`. Inicia todas las APIs desde la misma copia del repositorio. Si PowerShell bloquea `npm.ps1`, usa `npm.cmd`. Consulta la [guía de Windows](docs/GUIA_FRONTEND_WINDOWS.txt).
+
+Swagger solo está habilitado con el perfil `dev`, que activan los scripts: [Auth](http://localhost:8081/swagger-ui.html), [Residuos](http://localhost:8082/swagger-ui.html) y [Consultas](http://localhost:8083/swagger-ui.html). En Authorize pega el JWT sin el prefijo Bearer.
+
+## Endpoints actuales
+
+Salvo login y registro, requieren `Authorization: Bearer <token>`. La colección [Postman](docs/ReCiclo.postman_collection.json) usa tokens separados para ADMIN y USER.
+
+| API | Método y ruta | Acceso y cuerpo |
+| --- | --- | --- |
+| Auth | POST `/api/auth/login` | Público: `{ username, password }` |
+| Auth | POST `/api/auth/register` | Público: `{ username, password, nombre }` |
+| Auth | POST `/api/auth/refresh` | Autenticado: renueva `{ token, username, rol, nombre, expiraEnMs }` |
+| Auth | GET / PUT `/api/auth/me` | Autenticado; PUT: `{ nombre }` |
+| Auth | PUT `/api/auth/me/password` | `{ actual, nueva }`; mínimo 6 caracteres; 204 |
+| Auth | GET `/api/usuarios` | ADMIN: cuentas, estado y fecha de creación |
+| Auth | PUT `/api/usuarios/{id}` | ADMIN: `{ nombre }` |
+| Auth | PUT `/api/usuarios/{id}/rol` | ADMIN: `{ rol: "ADMIN" o "USER" }` |
+| Auth | PUT `/api/usuarios/{id}/estado` | ADMIN: `{ activo: true o false }` |
+| Auth | DELETE `/api/usuarios/{id}` | ADMIN; 204 |
+| Residuos | GET `/api/residuos` y `/api/residuos/{id}` | ADMIN ve todo; USER solo DISPONIBLE |
+| Residuos | POST `/api/residuos`, PUT / DELETE `/api/residuos/{id}` | ADMIN: datos del material, publicación e intercambio |
+| Residuos | GET `/api/residuos/avisos` | ADMIN y USER: publicaciones de hoy y futuras |
+| Residuos | GET `/api/residuos/pagina?pagina=0&tamanio=10` | Máximo 100; contenido y metadatos según visibilidad |
+| Residuos | GET `/api/residuos/estadisticas` | Kilos por tipo, empresa y mes; pendientes solo ADMIN |
+| Residuos | POST `/api/solicitudes` | USER: `{ residuoId, ofrece?, cantidadOfrecida?, mensaje? }` |
+| Residuos | GET `/api/solicitudes/mias` | USER: sus propuestas |
+| Residuos | PUT `/api/solicitudes/{id}/cancelar` | USER autor, solo PENDIENTE |
+| Residuos | GET `/api/solicitudes` | ADMIN: todas las propuestas |
+| Residuos | PUT `/api/solicitudes/{id}/decision` | ADMIN: `{ estado: "ACEPTADA" o "RECHAZADA", respuesta? }` |
+| Consultas | GET `/api/consultas/residuos` | Filtros: empresa, tipo, estado, preferencia, disponible y cantidadMinima |
+| Consultas | GET `/api/consultas/empresas` | ADMIN y USER: empresas visibles |
+
+Aceptar una propuesta retira el material del catálogo y rechaza las otras pendientes. Eliminarlo cancela sus pendientes. Los estados son PENDIENTE, ACEPTADA, RECHAZADA y CANCELADA. El mensaje admite 500 caracteres y la respuesta 300. La auditoría conserva quién registró y editó cada material.
+
+Login responde 429 tras cinco intentos fallidos en quince minutos y 403 para cuentas desactivadas. Angular renueva el token cinco minutos antes de vencer. Mi perfil permite cambiar nombre y contraseña.
+
+## Verificación
+
+Desde la raíz, con Java 21:
+
+```powershell
+$env:JAVA_HOME = "C:\Program Files\Eclipse Adoptium\jdk-21.0.3.9-hotspot"
+$env:Path = "$env:JAVA_HOME\bin;$env:Path"
+mvn -B -f auth-api/pom.xml verify
+mvn -B -f residuos-api/pom.xml verify
+mvn -B -f consultas-api/pom.xml verify
+cd frontend
+npm ci
+npx ng build
+npx playwright test
+```
+
+Playwright requiere las tres APIs y Angular activos, y Google Chrome instalado. Ejecuta proyectos de escritorio y Pixel 7, pruebas del flujo de intercambio, menú móvil y revisión de anchos a 375, 768 y 1280 px. Usa bases de desarrollo: las pruebas crean y modifican datos.
+
+La interfaz conserva el diseño de escritorio. En móvil muestra tablas como tarjetas, menú desplegable y controles de al menos 44 px. Los tres gráficos usan CSS sin librerías adicionales.
+
+## Versión anterior
 
 **Plataforma web para promover y gestionar el reciclaje de residuos.** Esta primera versión permite registrar, consultar, editar y eliminar residuos mediante una API REST y páginas sencillas de Thymeleaf, HTML y CSS, sin JavaScript.
 

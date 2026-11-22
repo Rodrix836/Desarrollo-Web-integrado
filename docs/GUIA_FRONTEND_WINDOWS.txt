@@ -1,280 +1,141 @@
-GUÍA ACTUALIZADA: consulta docs/GUIA_INTERCAMBIOS_PROGRAMADOS.txt para la rama Rodrigo_Intercambios-Programados y las nuevas funciones.
-
-Esta guía conserva los pasos de la entrega Angular anterior.
-
-GUÍA DE RECICLO CON FRONTEND ANGULAR
-12 de noviembre de 2026
+GUÍA DE RECICLO — RAMA mejoras-integrales
+Actualizada el 22 de noviembre de 2026
 Repositorio: https://github.com/Rodrix836/Desarrollo-Web-integrado
-Rama del PR: Rodrigo_Frontend-Angular
 
-1. QUÉ CAMBIÓ
+1. PREPARAR LA COPIA
 
-La rama AdrianJP-authApi ya había sido integrada en main. Contiene Auth
-independiente en auth-api. Se agregó frontend Angular con login, registro,
-inicio, residuos, consultas y administración de usuarios.
-
-El nuevo frontend se abre en http://localhost:4200.
-El login obtiene el JWT de Auth y lo envía automáticamente a las APIs.
-Los materiales que registres en la página se guardan en residuos-api y
-aparecen en el listado, el detalle y las consultas.
-
-Servicios:
-  Auth         8081  Login, registro, perfil y roles
-  Residuos     8082  CRUD y persistencia H2
-  Consultas    8083  Filtros y empresas leyendo Residuos por HTTP
-  Angular      4200  Página nueva que conecta los tres servicios
-
-Consultas es un adaptador de lectura sobre la API de Residuos. Los filtros
-se aplican a la respuesta HTTP. Las consultas JPQL antiguas siguen en el
-proyecto raíz y no son el mecanismo de este adaptador.
-
-La interfaz antigua Thymeleaf en 8080 es independiente. Para demostrar el
-sistema nuevo se usa Angular en 4200.
-
-2. ABRIR LA RAMA DEL PR
-
-Si ya tienes el repositorio, abre PowerShell y ejecuta una línea por vez:
-
-  Set-Location C:\Users\2305498\Desarrollo-Web-integrado
+Conserva tus cambios antes de cambiar de rama. Desde tu repositorio:
   git status --short --branch
   git fetch origin
-  git switch Rodrigo_Frontend-Angular
-  git pull --ff-only origin Rodrigo_Frontend-Angular
-  code .
+  git switch mejoras-integrales
+  git pull --ff-only origin mejoras-integrales
 
-Si git switch dice que la rama no existe localmente, usa una vez:
-  git switch --track origin/Rodrigo_Frontend-Angular
+Si todavía no tienes una copia:
+  git clone --branch mejoras-integrales https://github.com/Rodrix836/Desarrollo-Web-integrado.git
+  cd Desarrollo-Web-integrado
 
-Si todavía no tienes el repositorio:
-  Set-Location C:\Users\2305498
-  git clone --branch Rodrigo_Frontend-Angular https://github.com/Rodrix836/Desarrollo-Web-integrado.git
-  Set-Location Desarrollo-Web-integrado
-  code .
-
-Si git status muestra cambios de código tuyos, consérvalos antes de cambiar
-de rama. Los datos locales y la clave compartida están ignorados por Git.
-
-3. REQUISITOS
-
-Instala Java 21, Maven y Node.js 22.12 o posterior de la línea 22.
-Esta entrega se verificó con Java 21.0.3, Node 22.17.1 y npm 10.9.2.
-
-En VS Code abre Terminal > New Terminal y selecciona PowerShell.
-Comprueba:
-  java -version
-  mvn.cmd -version
-  node --version
-  npm.cmd --version
-
-El script de inicio selecciona el JDK 21 de Eclipse Adoptium si está en la
-ruta que usamos. Si tienes otra instalación, configura JAVA_HOME antes de
-iniciarlo, usando tu ruta real:
+Requisitos: Java 21, Maven, Node.js compatible con Angular 20 y Chrome.
+Comprueba java -version, mvn.cmd -version, node --version y npm.cmd --version.
+Si Maven usa Java 17, configura tu terminal con la ruta de tu JDK 21:
   $env:JAVA_HOME = 'C:\Program Files\Eclipse Adoptium\jdk-21.0.3.9-hotspot'
   $env:Path = "$env:JAVA_HOME\bin;$env:Path"
 
-Usamos npm.cmd y mvn.cmd para evitar el bloqueo de archivos .ps1 de npm.
-Los comandos de abajo se ejecutan desde la raíz del repositorio.
+2. INICIAR EL SISTEMA
 
-4. INICIAR TODO EL SISTEMA
-
-Abre cuatro terminales. Espera que cada API confirme su puerto antes de
-probar el navegador. No vuelvas a iniciar una API que ya esté corriendo.
-
-TERMINAL 1. AUTH
-  Set-Location C:\Users\2305498\Desarrollo-Web-integrado
-  powershell.exe -ExecutionPolicy Bypass -File .\scripts\iniciar-api.ps1 -Servicio auth
-
-TERMINAL 2. RESIDUOS
-  Set-Location C:\Users\2305498\Desarrollo-Web-integrado
-  powershell.exe -ExecutionPolicy Bypass -File .\scripts\iniciar-api.ps1 -Servicio residuos
-
-TERMINAL 3. CONSULTAS
-  Set-Location C:\Users\2305498\Desarrollo-Web-integrado
-  powershell.exe -ExecutionPolicy Bypass -File .\scripts\iniciar-api.ps1 -Servicio consultas
-
-TERMINAL 4. FRONTEND
-  Set-Location C:\Users\2305498\Desarrollo-Web-integrado\frontend
+Abre cuatro terminales desde la raíz del repositorio.
+Terminal 1:
+  .\scripts\iniciar-api.ps1 -Servicio auth
+Terminal 2:
+  .\scripts\iniciar-api.ps1 -Servicio residuos
+Terminal 3:
+  .\scripts\iniciar-api.ps1 -Servicio consultas
+Terminal 4:
+  cd frontend
   npm.cmd ci
   npm.cmd start
 
-npm.cmd ci instala las dependencias. Solo necesitas repetirlo cuando cambie
-package-lock.json o falte node_modules.
-Abre http://localhost:4200 y mantén las cuatro terminales abiertas.
+Espera el arranque y abre http://localhost:4200. Auth usa 8081, Residuos
+8082 y Consultas 8083. La aplicación anterior en 8080 es independiente.
+Detén los cuatro procesos con Ctrl+C al terminar.
 
-El script genera una sola clave local en .local/jwt-secret.txt y la
-comparte entre Auth y Residuos. No necesitas copiar claves ni JWT para
-usar la página. Auth usa auth-api/data y Residuos usa residuos-api/data.
-Conserva esos directorios para recuperar tus registros al reiniciar.
-La clave y las bases están ignoradas por Git.
+El script genera una clave aleatoria compartida en .local/jwt-secret.txt.
+Las bases H2 están en auth-api/data y residuos-api/data. No compartas ni
+versiones esos archivos. Conserva las bases para recuperar tus datos.
 
-Si ya tienes un JWT de una ejecución anterior, vuelve a iniciar sesión.
-La clave local de esta guía reemplaza la antigua clave fija de demo.
+3. CUENTAS Y PERMISOS
 
-5. USAR LA PÁGINA
+ADMIN: admin / admin123
+  Registra, edita y elimina materiales; ve todo el inventario, responde
+  solicitudes de intercambio y administra cuentas.
+USER: user / user123
+  Ve el catálogo disponible, envía solicitudes y cancela las propias
+  pendientes. Las cuentas nuevas reciben este rol.
 
-Abre http://localhost:4200/login.
-Cuenta de administrador:
-  Usuario: admin
-  Contraseña: admin123
+Empresa es un texto del material que identifica quién lo ofrece.
+ReCiclo no incluye compras ni pagos.
 
-Cuenta de consulta:
-  Usuario: user
-  Contraseña: user123
+4. RECORRIDO DE DEMOSTRACIÓN
 
-Los usuarios demo se crean cuando la base de Auth está vacía.
+  1. Entra como admin. Inicio presenta registros, disponibles, kilos y
+     gráficos por tipo, principales empresas y mes. Solicitudes pendientes
+     conduce a las propuestas recibidas.
+  2. Abre Residuos > Registrar residuo. Indica tipo, cantidad positiva en
+     kg y descripción. Sin Habilitar intercambio queda sin publicar.
+  3. Para publicarlo marca Habilitar intercambio, completa empresa,
+     preferencia y fecha. Hoy lo publica; una fecha futura genera un aviso.
+  4. Abre el detalle y revisa la auditoría. Edita y guarda la cantidad.
+  5. Residuos permite filtrar y recorrer diez registros por página. Al
+     cambiar filtros vuelve a la primera página. Consultas combina filtros.
+  6. Cierra sesión y entra como user. Abre el material disponible y usa
+     Solicitar intercambio. Material ofrecido, cantidad y mensaje son
+     opcionales. El mensaje admite hasta 500 caracteres.
+  7. En Mis solicitudes puedes cancelar propuestas pendientes.
+  8. Vuelve como admin y abre Solicitudes recibidas. Filtra por estado,
+     escribe una respuesta opcional (hasta 300 caracteres) y acepta o
+     rechaza. Aceptar retira el material y rechaza otras pendientes.
+  9. Vuelve como user: Mis solicitudes muestra Aceptada y la respuesta,
+     aunque el material ya no figure en el catálogo.
+  10. Como admin, Usuarios permite cambiar nombre, rol, activar/desactivar
+      y eliminar con confirmación. Los controles propios están deshabilitados.
+  11. Mi perfil permite cambiar el nombre y la contraseña. Confirma la
+      nueva contraseña, de al menos seis caracteres.
+  12. En celular, abre ☰ para navegar, ver la cuenta o cerrar sesión.
+      Navegar y pulsar Esc cierran el menú. Las tablas se muestran como
+      tarjetas con etiquetas; los formularios ocupan todo el ancho.
 
-ADMIN puede registrar, consultar, editar y eliminar residuos, y cambiar
-roles en Usuarios. USER puede listar y consultar. Una cuenta nueva se
-registra como USER. La cuenta EMPRESA de la semilla necesita que un ADMIN
-le asigne USER o ADMIN para usar el catálogo protegido actual.
+5. API Y SWAGGER
 
-RECORRIDO PARA LA DEMOSTRACIÓN
-  1. Inicia sesión como admin.
-  2. En Inicio observa los contadores basados en registros reales.
-  3. Abre Residuos y pulsa Registrar residuo.
-  4. Completa tipo, cantidad positiva en kg y descripción.
-  5. Marca Habilitar intercambio y completa empresa, preferencia y fecha de publicación.
-  6. Guarda. Se abre el detalle con el ID generado por H2.
-  7. Vuelve a Residuos. Busca por material o empresa.
-  8. Abre el detalle y pulsa Editar residuo. Cambia la cantidad y guarda.
-  9. Abre Consultas, filtra por empresa o tipo y busca. Aparece el mismo
-     material actualizado porque Consultas lee la API de Residuos.
-  10. Abre Usuarios para consultar cuentas y cambiar sus roles.
-  11. Para eliminar un material, abre su detalle, pulsa Eliminar residuo
-      y confirma. El listado se actualiza.
-  12. Cierra sesión y entra como user para demostrar la consulta sin
-      acciones administrativas.
+Swagger solo está activo con el perfil dev, habilitado por los scripts:
+  http://localhost:8081/swagger-ui.html
+  http://localhost:8082/swagger-ui.html
+  http://localhost:8083/swagger-ui.html
 
-Los cambios de rol se aplican al iniciar una sesión nueva. Un JWT emitido
-antes conserva sus permisos hasta vencer. El JWT dura una hora.
-El token se guarda en sessionStorage de la pestaña y se retira al cerrar
-sesión. Si vence, el frontend vuelve al login.
+Importa docs/ReCiclo.postman_collection.json en Postman. Ejecuta Login
+ADMIN y Login USER; sus pruebas guardan tokenAdmin y tokenUser separados.
+Usa las variables residuoId, solicitudId y usuarioId para las operaciones.
+El registro recibe username, password y nombre.
 
-6. VER LO MISMO DESDE POWERSHELL
+Auth:
+  POST /api/auth/login, /register y /refresh
+  GET y PUT /api/auth/me
+  PUT /api/auth/me/password (actual, nueva)
+  GET /api/usuarios
+  PUT /api/usuarios/{id}, /{id}/rol y /{id}/estado
+  DELETE /api/usuarios/{id}
+Residuos:
+  GET y POST /api/residuos; GET, PUT y DELETE /api/residuos/{id}
+  GET /api/residuos/avisos, /pagina y /estadisticas
+  POST /api/solicitudes; GET /api/solicitudes/mias
+  PUT /api/solicitudes/{id}/cancelar
+  GET /api/solicitudes; PUT /api/solicitudes/{id}/decision
+Consultas:
+  GET /api/consultas/residuos y /api/consultas/empresas
 
-Usa otra terminal. Esta versión de Auth recibe username y password.
-El contrato anterior con usuario y clave correspondía al Auth antiguo.
+Los tokens viajan con Authorization: Bearer. Angular los guarda en
+sessionStorage y los renueva cinco minutos antes del vencimiento.
 
-Pega el bloque completo, incluidas las llaves:
-  $loginArgs = @{
-      Uri = 'http://localhost:8081/api/auth/login'
-      Method = 'Post'
-      ContentType = 'application/json'
-      Body = '{"username":"admin","password":"admin123"}'
-  }
-  $sesion = Invoke-RestMethod @loginArgs
-  $headers = @{ Authorization = "Bearer $($sesion.token)" }
-  $base = 'http://localhost:8082/api/residuos'
-  Invoke-RestMethod -Uri $base -Headers $headers | ConvertTo-Json -Depth 5
-
-Para crear:
-  $datos = @{
-      tipoResiduo = 'PLASTICO'
-      cantidad = 2.5
-      unidadMedida = 'kg'
-      fechaPublicacion = (Get-Date).ToString('yyyy-MM-dd')
-      descripcion = 'Botellas limpias'
-      empresa = 'Empresa Demo'
-      intercambioPor = 'PAPEL_CARTON'
-      disponible = $true
-  }
-  $json = $datos | ConvertTo-Json -Compress
-  $creado = Invoke-RestMethod -Uri $base -Method Post -Headers $headers -ContentType 'application/json' -Body $json
-  $id = $creado.id
-  $creado | Format-List
-
-Ese registro aparece al actualizar el listado de Angular.
-Para consultar:
-  Invoke-RestMethod -Uri "$base/$id" -Headers $headers | Format-List
-
-Para modificar:
-  $datos.cantidad = 3.75
-  $json = $datos | ConvertTo-Json -Compress
-  Invoke-RestMethod -Uri "$base/$id" -Method Put -Headers $headers -ContentType 'application/json' -Body $json
-
-Para consultar empresas y materiales mediante la tercera API:
-  Invoke-RestMethod -Uri 'http://localhost:8083/api/consultas/empresas' -Headers $headers
-  Invoke-RestMethod -Uri 'http://localhost:8083/api/consultas/residuos?empresa=Demo' -Headers $headers
-
-Para eliminar:
-  Invoke-RestMethod -Uri "$base/$id" -Method Delete -Headers $headers
-
-Un DELETE correcto devuelve 204 sin cuerpo. Después, un GET de ese ID
-devuelve 404. El ID no debe escribirse a mano como 1: usa el valor devuelto.
-
-7. SWAGGER
-
-Swagger de Residuos sigue disponible con los scripts:
-  http://localhost:8082/swagger-ui/index.html
-
-Para usarlo:
-  Set-Clipboard -Value $sesion.token
-
-Pulsa Authorize y pega solo el token, sin el texto Bearer.
-La página Angular ya gestiona esto automáticamente.
-
-8. PROBLEMAS QUE TUVIMOS
-
-- "verifymvn": se pegaron dos comandos juntos. Ejecuta una línea completa.
-- "No goals have been specified": faltó spring-boot:run. Los scripts de
-  inicio evitan el comando largo con comillas que se nos cortaba.
-- "Falta un argumento para ContentType": faltó 'application/json'. Pega
-  entero el bloque $loginArgs de esta guía.
-- Prompt >>: PowerShell espera cerrar una comilla o una llave. Si aparece
-  mientras escribes un bloque @{ ... }, termina en }. Si quedó cortado,
-  pulsa Ctrl+C y vuelve a pegar el bloque completo. No copies PS> ni >>.
-- Error 405 al abrir /api/auth/login: la barra del navegador envía GET y
-  el login requiere POST. Usa la pantalla Angular o el bloque PowerShell.
-- 401: inicia sesión de nuevo. Comprueba que ambas APIs se iniciaron con
-  el script de esta copia del repositorio para usar la misma clave.
-- 403 en el login: comprueba que usas la versión actualizada de las APIs.
-  Las APIs admiten tanto localhost:4200 como 127.0.0.1:4200. La versión
-  inicial solo admitía localhost. Si todavía está ejecutándose esa versión,
-  abre http://localhost:4200/login o actualiza y reinicia las tres APIs.
-- 403 después del login: el rol no permite la acción. Usa ADMIN para el
-  CRUD y Usuarios.
-- "Puerto en uso": hay otra instancia abierta. Detén esa terminal con
-  Ctrl+C antes de iniciar otra en el mismo puerto.
-- La página indica que no conecta con el servicio: verifica las tres
-  APIs y espera el mensaje de Tomcat antes de recargar Angular.
-- No ves registros en la página antigua 8080: usa Angular 4200 para
-  trabajar con los datos de residuos-api.
-- npm.ps1 bloqueado: usa npm.cmd, tal como aparece en los comandos.
-
-9. VERIFICACIONES
+6. PRUEBAS
 
 Desde la raíz, con Java 21:
-  mvn.cmd -f auth-api/pom.xml clean verify
-  mvn.cmd -f residuos-api/pom.xml clean verify
-  mvn.cmd -f consultas-api/pom.xml clean verify
-
+  mvn.cmd -B -f auth-api/pom.xml verify
+  mvn.cmd -B -f residuos-api/pom.xml verify
+  mvn.cmd -B -f consultas-api/pom.xml verify
 Desde frontend:
-  npm.cmd run build
+  npm.cmd ci
+  npx.cmd ng build
+Con las APIs y Angular activos:
+  npx.cmd playwright test
 
-Pruebas de navegador, con las tres APIs y npm.cmd start activos:
-  npm.cmd test
+Playwright ejecuta escritorio y Pixel 7 y comprueba las pantallas a 375,
+768 y 1280 px. Usa datos locales de desarrollo.
 
-Las pruebas de navegador usan Google Chrome instalado, crean cuentas y
-hacen CRUD con materiales de prueba. Usa bases de desarrollo.
-En esta versión se verificaron 6 pruebas Auth, 53 Residuos y 6 Consultas.
-Se verificó el recorrido de navegador para ADMIN, USER, registro y roles.
-Las pruebas antiguas de la aplicación raíz conservan sus fallos previos y
-no forman parte de estas tres suites.
+7. RESOLVER PROBLEMAS
 
-La compilación de producción pasó. npm audit --omit=dev reporta 0
-vulnerabilidades. npm audit completo informa 16 moderadas en herramientas
-de desarrollo de Angular CLI. No se aplicó su downgrade incompatible.
-
-10. EXPLICAR EL PROYECTO
-
-Auth emite un JWT firmado con sub, rol y exp. Angular añade Bearer solo a
-las rutas de las APIs del proyecto. Los guards organizan las pantallas y
-las APIs controlan los permisos reales.
-
-El flujo de registro es Angular > Security de Residuos > Controller >
-Service > JpaRepository > Hibernate > H2. Consultas reenvía el Bearer a
-Residuos en cada solicitud y filtra los registros autorizados. Así utiliza
-la misma fuente de datos.
-
-El PR contiene el frontend y los ajustes necesarios para esta integración.
-Para apagar el sistema, pulsa Ctrl+C en las cuatro terminales.
+401: inicia sesión de nuevo; verifica que los servicios usen la misma clave.
+403: revisa el rol; en login indica cuenta desactivada.
+429 en login: demasiados intentos; espera antes de volver a probar.
+409: propuesta duplicada o decisión sobre una propuesta finalizada.
+404: material no disponible o solicitud que no pertenece a la cuenta.
+Puerto ocupado: detén la instancia anterior antes de iniciar otra.
+Error de conexión: espera que las tres APIs y Angular estén activos.
+Tras cambiar un rol, cierra sesión y vuelve a entrar para renovar permisos.
