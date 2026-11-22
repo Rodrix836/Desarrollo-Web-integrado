@@ -3,14 +3,16 @@ import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { ApiService, mensajeError } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
-import { AvisoIntercambio, Residuo, nombreTipo, nombreEstado } from '../../core/models';
+import { AvisoIntercambio, Estadisticas, Residuo, nombreTipo, nombreEstado } from '../../core/models';
+import { GraficoBarrasComponent } from '../../shared/grafico-barras';
 import { AvisosIntercambioComponent } from '../../shared/avisos-intercambio';
 
-@Component({ imports: [RouterLink, AvisosIntercambioComponent], templateUrl: './home.html' })
+@Component({ imports: [RouterLink, AvisosIntercambioComponent, GraficoBarrasComponent], templateUrl: './home.html' })
 export class HomePage implements OnInit {
   auth = inject(AuthService);
   private api = inject(ApiService);
   datos: Residuo[] = [];
+  resumen: Estadisticas = { registros: 0, disponibles: 0, totalKg: 0, porTipo: [], porEmpresa: [], porMes: [], solicitudesPendientes: 0 };
   avisos: AvisoIntercambio[] = [];
   error = '';
   cargando = false;
@@ -22,9 +24,10 @@ export class HomePage implements OnInit {
   cargar() {
     this.error = '';
     this.cargando = true;
-    forkJoin({ datos: this.api.listar(), avisos: this.api.avisos() }).subscribe({
+    forkJoin({ datos: this.api.listar(), avisos: this.api.avisos(), resumen: this.api.estadisticas() }).subscribe({
       next: (r) => {
         this.datos = r.datos;
+        this.resumen = r.resumen;
         this.avisos = r.avisos;
         this.cargando = false;
       },
@@ -35,9 +38,6 @@ export class HomePage implements OnInit {
     });
   }
   get disponibles() {
-    return this.datos.filter((r) => r.estadoPublicacion === 'DISPONIBLE').length;
-  }
-  get empresas() {
-    return new Set(this.datos.map((r) => r.empresa).filter(Boolean)).size;
+    return this.resumen.disponibles;
   }
 }

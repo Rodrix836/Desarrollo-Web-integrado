@@ -3,7 +3,6 @@ export interface Usuario {
   username: string;
   nombre: string;
   rol: string;
-  empresa?: string | null;
   activo?: boolean;
   creadoEn?: string;
 }
@@ -24,7 +23,6 @@ export interface Residuo {
   disponible: boolean;
   fechaPublicacion: string | null;
   estadoPublicacion: EstadoPublicacion;
-  propietario?: string | null;
   creadoPor?: string | null;
   creadoEn?: string | null;
   actualizadoPor?: string | null;
@@ -61,7 +59,7 @@ export interface Solicitud {
   residuoTipo: string;
   empresaDestino: string;
   solicitante: string;
-  empresaSolicitante: string | null;
+  respondidoPor: string | null;
   ofrece: string | null;
   cantidadOfrecida: number | null;
   mensaje: string;
@@ -104,6 +102,13 @@ export function fechaHora(instante: string | null | undefined): string {
     dateStyle: 'short',
     timeStyle: 'short',
   }).format(new Date(instante));
+}
+export interface Pagina<T> {
+  contenido: T[];
+  pagina: number;
+  tamanio: number;
+  totalElementos: number;
+  totalPaginas: number;
 }
 export interface AvisoIntercambio {
   id: number;

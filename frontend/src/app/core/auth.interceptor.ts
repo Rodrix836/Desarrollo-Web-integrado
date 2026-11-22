@@ -5,7 +5,7 @@ import { AuthService } from './auth.service';
 
 export const authInterceptor: HttpInterceptorFn = (request, next) => {
   const auth = inject(AuthService);
-  const propia = /^\/api\/(auth|usuarios|residuos|consultas)(\/|$)/.test(request.url);
+  const propia = /^\/api\/(auth|usuarios|residuos|consultas|solicitudes)(\/|$)/.test(request.url);
   const token = propia ? auth.token() : null;
   const segura = token
     ? request.clone({ setHeaders: { Authorization: 'Bearer ' + token } })

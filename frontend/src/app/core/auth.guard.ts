@@ -24,3 +24,10 @@ export const adminGuard: CanActivateFn = () => {
   alert('No tienes acceso a este apartado. Se requiere rol de administrador.');
   return router.createUrlTree(['/']);
 };
+
+export const userGuard: CanActivateFn = () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+  if (!auth.token()) return router.createUrlTree(['/login']);
+  return auth.puedeSolicitar() ? true : router.createUrlTree(['/']);
+};

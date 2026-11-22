@@ -1416,10 +1416,6 @@ td {
   background: var(--t-plastico-bg);
   color: var(--t-plastico);
 }
-.role-badge[data-rol='EMPRESA'] {
-  background: var(--t-papel-bg);
-  color: var(--t-papel);
-}
 .role-cell {
   display: flex;
   align-items: center;
@@ -1666,4 +1662,110 @@ label {
   *::after {
     animation: none !important;
   }
+}
+/* Solicitudes y resúmenes comparten las superficies de ReCiclo. */
+.sidebar-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.sidebar-menu { display: flex; flex: 1; min-height: 0; flex-direction: column; gap: 8px; }
+.menu-toggle { display: none; }
+.main-content, .page-heading > div, .sidebar-menu, .account > div,
+.form-grid > *, .material-row > div, .material-name > div { min-width: 0; }
+.page, .sidebar, .panel, td, dd, .material-row { overflow-wrap: anywhere; }
+input, select, textarea { min-width: 0; max-width: 100%; }
+.account strong { overflow-wrap: anywhere; }
+.graficos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; margin-bottom: 28px; }
+.graficos > * { min-width: 0; }
+.grafico { padding: 24px; height: 100%; }
+.grafico h2 { font-size: 17px; }
+.grafico > p { font-size: 12px; }
+.barras { list-style: none; padding: 0; margin: 24px 0 0; }
+.barras li + li { margin-top: 16px; }
+.barra-etiqueta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; font-size: 12px; }
+.barra-etiqueta span { min-width: 0; overflow-wrap: anywhere; }
+.barra-etiqueta strong { font-variant-numeric: tabular-nums; }
+.barra-fondo { background: var(--leaf); border-radius: 4px; height: 8px; margin-top: 8px; overflow: hidden; }
+.barra-fondo span { display: block; height: 100%; background: var(--forest-soft); border-radius: inherit; }
+.pendientes { display: flex; align-items: center; gap: 20px; padding: 24px; margin-bottom: 28px; }
+.pendientes > div { flex: 1; min-width: 0; }
+.pendientes h2 { font-size: 17px; }
+.pendientes p { margin: 0; font-size: 13px; }
+.pendientes > strong { font-size: 30px; font-variant-numeric: tabular-nums; }
+.paginacion { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 16px; padding: 20px; }
+.paginacion span { color: var(--muted); font-size: 13px; }
+.propuesta-panel { margin-top: 24px; }
+.auditoria { font-size: 12px; color: var(--muted); margin-top: 24px; }
+.auditoria p { margin-bottom: 8px; }
+.acciones-solicitud, .acciones-usuario { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.status[data-estado='PENDIENTE'] { background: var(--t-papel-bg); color: var(--t-papel); }
+.status[data-estado='ACEPTADA'] { background: var(--leaf); color: var(--forest); }
+.status[data-estado='RECHAZADA'] { background: #fbeeea; color: var(--danger); }
+.status[data-estado='CANCELADA'] { background: var(--t-metal-bg); color: var(--t-metal); }
+.mensaje-solicitud { white-space: pre-wrap; margin: 12px 0 4px; }
+.solicitudes-table, .usuarios-table { table-layout: fixed; }
+.solicitudes-table td, .usuarios-table td { vertical-align: top; }
+.solicitudes-table td p { margin-bottom: 8px; }
+.usuarios-table td > .button { margin-top: 8px; }
+.usuarios-table .role-cell { flex-wrap: wrap; }
+.usuarios-table .role-cell select { width: 100%; }
+.usuarios-table .user-cell { display: flex; align-items: flex-start; }
+.usuarios-table th, .usuarios-table td, .solicitudes-table th, .solicitudes-table td { padding: 16px; }
+@media (min-width: 701px) and (max-width: 1100px) {
+  .workspace { grid-template-columns: 205px minmax(0, 1fr); }
+  .graficos { grid-template-columns: 1fr; }
+  .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .topbar .workspace-badge { display: none; }
+  .topbar { gap: 12px; flex-wrap: wrap; }
+  .page-heading { flex-wrap: wrap; }
+  .toolbar { flex-wrap: wrap; }
+  .toolbar select { flex: 1; }
+  .table-wrap { overflow-x: visible; }
+  table { table-layout: fixed; }
+  td, th { padding: 12px 8px; }
+  .row-link, .quantity, .status { white-space: normal; }
+  .material-name { flex-wrap: wrap; }
+  .material-row { flex-wrap: wrap; }
+  .usuarios-table th, .usuarios-table td, .solicitudes-table th, .solicitudes-table td { padding: 12px 6px; }
+  .usuarios-table .button, .solicitudes-table .button { width: 100%; padding: 8px; white-space: normal; }
+  .usuarios-table .avatar { display: none; }
+}
+@media (max-width: 700px) {
+  .sidebar-heading .brand { flex: 1; }
+  .menu-toggle { display: inline-flex; min-width: 44px; font-size: 21px; }
+  .sidebar-menu { display: none; }
+  .sidebar-menu.abierto { display: flex; margin-top: 16px; }
+  .sidebar nav { display: grid; overflow: visible; margin: 0; gap: 4px; }
+  .sidebar nav a { min-height: 44px; padding: 12px; }
+  .sidebar-menu .account { display: flex; margin: 8px 0 0; padding: 16px 12px; border-top: 1px solid var(--line); }
+  .logout { position: static; min-height: 44px; width: 100%; padding: 12px; font-size: 13px; }
+  .graficos { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .grafico { padding: 20px; }
+  .metrics article { grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; }
+  .metrics strong { font-size: 26px; }
+  .pendientes { padding: 20px; }
+  .table-wrap { overflow: visible; box-shadow: none; background: transparent; }
+  .table-caption { padding: 16px 0; gap: 12px; }
+  table, tbody { display: block; width: 100%; }
+  thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  tbody tr { display: block; background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 8px 16px; margin-bottom: 16px; }
+  tbody td { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; padding: 12px 0; border: 0; white-space: normal; }
+  td::before { content: attr(data-label); color: var(--muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; }
+  td > * { min-width: 0; max-width: 100%; }
+  td > .status { justify-self: start; }
+  .usuarios-table td, .solicitudes-table td { padding: 12px 0; }
+  .role-cell { gap: 8px; }
+  .role-cell select { width: 100%; }
+  .role-badge { align-self: flex-start; }
+  .form-grid { grid-template-columns: minmax(0, 1fr); }
+  .form-actions, .heading-actions, .acciones-solicitud, .acciones-usuario { flex-direction: column; align-items: stretch; }
+  .form-actions > *, .heading-actions > *, .acciones-solicitud > *, .acciones-usuario > * { width: 100%; }
+  .button, button, input:not([type='checkbox']), select { min-height: 44px; }
+  input:not([type='checkbox']), select, textarea { width: 100%; font-size: 16px; }
+  .toolbar { display: grid; grid-template-columns: minmax(0, 1fr); }
+  .toolbar select, .toolbar > :not(.sr-only) { width: 100%; }
+  .material-row .quantity { white-space: normal; }
+  .notice-copy { min-width: 0; flex-basis: 100%; }
+  .section-title { gap: 12px; flex-wrap: wrap; }
+  .paginacion { gap: 8px; padding: 8px 0; }
+  .paginacion span { order: -1; width: 100%; text-align: center; }
+  .paginacion button { flex: 1; }
+  .profile-hero { gap: 16px; }
 }

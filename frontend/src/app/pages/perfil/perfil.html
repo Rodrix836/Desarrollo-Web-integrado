@@ -1,50 +1,24 @@
 <section class="page narrow perfil-page">
-  <div class="page-heading">
-    <div>
-      <p class="eyebrow">TU CUENTA</p>
-      <h1>Mi perfil</h1>
-      <p class="muted">Datos de la sesión actual.</p>
-    </div>
-    <a class="button secondary" routerLink="/">Volver al inicio</a>
-  </div>
-
-  @if (cargando) {
-    <div class="panel skeleton-list" role="status">
-      <span class="sr-only">Cargando perfil…</span>
-      @for (n of [1, 2, 3]; track n) {
-        <div class="skeleton-row"><i></i><b></b><b class="short"></b></div>
-      }
-    </div>
-  } @else if (error) {
-    <p class="alert error" role="alert">{{ error }}</p>
-  } @else if (auth.usuario(); as u) {
-    <div class="panel profile-hero">
-      <span class="avatar xl">{{ u.nombre.charAt(0) }}</span>
-      <div>
-        <h2>{{ u.nombre }}</h2>
-        <p class="muted">&#64;{{ u.username }}</p>
+  <div class="page-heading"><div><p class="eyebrow">TU CUENTA</p><h1>Mi perfil</h1><p class="muted">Mantén tus datos y tu contraseña actualizados.</p></div><a class="button secondary" routerLink="/">Volver al inicio</a></div>
+  @if (error) { <p class="alert error" role="alert">{{ error }}</p> }
+  @if (mensaje) { <p class="alert success" role="status">{{ mensaje }}</p> }
+  @if (cargando) { <p class="empty" role="status">Cargando perfil…</p> }
+  @else if (auth.usuario(); as u) {
+    <div class="panel profile-hero"><span class="avatar xl">{{ u.nombre.charAt(0) }}</span><div><h2>{{ u.nombre }}</h2><p class="muted">&#64;{{ u.username }}</p></div><span class="role-badge" [attr.data-rol]="u.rol">{{ u.rol }}</span></div>
+    <p class="muted">{{ descripcionRol(u.rol) }}</p>
+    <form class="panel detail-panel propuesta-panel" #perfil="ngForm" (ngSubmit)="guardarNombre(perfil)">
+      <h2>Datos personales</h2><label for="nombre">Nombre completo</label>
+      <input id="nombre" name="nombre" [(ngModel)]="nombre" required maxlength="100" autocomplete="name" />
+      <div class="form-actions"><button class="button primary" [disabled]="perfil.invalid || guardando">Guardar nombre</button></div>
+    </form>
+    <form class="panel detail-panel propuesta-panel" #clave="ngForm" (ngSubmit)="cambiarPassword(clave)">
+      <h2>Cambiar contraseña</h2>
+      <div class="form-grid">
+        <div class="full"><label for="actual">Contraseña actual</label><input id="actual" name="actual" type="password" [(ngModel)]="actual" required autocomplete="current-password" /></div>
+        <div><label for="nueva">Nueva contraseña</label><input id="nueva" name="nueva" type="password" [(ngModel)]="nueva" required autocomplete="new-password" /><small class="muted">Al menos 6 caracteres.</small></div>
+        <div><label for="confirmacion">Confirmar nueva contraseña</label><input id="confirmacion" name="confirmacion" type="password" [(ngModel)]="confirmacion" required autocomplete="new-password" /></div>
       </div>
-      <span class="role-badge" [attr.data-rol]="u.rol">{{ u.rol }}</span>
-    </div>
-    <div class="panel detail-panel profile-details">
-      <dl>
-        <div>
-          <dt>Nombre</dt>
-          <dd>{{ u.nombre }}</dd>
-        </div>
-        <div>
-          <dt>Usuario</dt>
-          <dd>{{ u.username }}</dd>
-        </div>
-        <div>
-          <dt>Rol</dt>
-          <dd>{{ u.rol }}</dd>
-        </div>
-        <div>
-          <dt>Permisos</dt>
-          <dd>{{ descripcionRol(u.rol) }}</dd>
-        </div>
-      </dl>
-    </div>
+      <div class="form-actions"><button class="button primary" [disabled]="guardando">Actualizar contraseña</button></div>
+    </form>
   }
 </section>

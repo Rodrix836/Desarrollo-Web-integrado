@@ -2,7 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs';
-import { Residuo, Sesion, Usuario } from './models';
+import { Sesion, Usuario } from './models';
 
 /** Margen antes del vencimiento en el que se pide un token nuevo. */
 const MARGEN_RENOVACION_MS = 5 * 60 * 1000;
@@ -47,7 +47,7 @@ export class AuthService {
       .post<Sesion>('/api/auth/register', { username, password, nombre })
       .pipe(tap((s) => this.guardar(s)));
   }
-  /** Relee los datos de la cuenta (nombre, rol, empresa). */
+  /** Relee los datos de la cuenta (nombre y rol). */
   refresh() {
     return this.http.get<Usuario>('/api/auth/me').pipe(
       tap((u) => {
@@ -78,34 +78,11 @@ export class AuthService {
   admin(): boolean {
     return this.rol() === 'ADMIN';
   }
-  esEmpresa(): boolean {
-    return this.rol() === 'EMPRESA';
-  }
-  /** ADMIN y EMPRESA pueden registrar materiales (EMPRESA sólo los suyos). */
-  puedeGestionar(): boolean {
-    return this.admin() || this.esEmpresa();
-  }
   puedeConsultar(): boolean {
-    return ['ADMIN', 'USER', 'EMPRESA'].includes(this.rol());
+    return ['ADMIN', 'USER'].includes(this.rol());
   }
-  /** USER y EMPRESA envían solicitudes de intercambio. */
   puedeSolicitar(): boolean {
-    return ['USER', 'EMPRESA'].includes(this.rol());
-  }
-  /** Igual que la regla de residuos-api: registró el material o es de su empresa. */
-  esDueno(r: Residuo): boolean {
-    const u = this.usuario();
-    if (!u) return false;
-    if (r.propietario && r.propietario === u.username) return true;
-    return (
-      u.rol === 'EMPRESA' &&
-      !!u.empresa &&
-      !!r.empresa &&
-      r.empresa.trim().toLocaleLowerCase() === u.empresa.trim().toLocaleLowerCase()
-    );
-  }
-  puedeEditar(r: Residuo): boolean {
-    return this.admin() || (this.esEmpresa() && this.esDueno(r));
+    return this.rol() === 'USER';
   }
 
   logout(navigate = true) {

@@ -1,14 +1,19 @@
 @if (auth.usuario()) {
 <div class="workspace">
   <aside class="sidebar">
+    <div class="sidebar-heading">
     <a class="brand" routerLink="/" aria-label="ReCiclo, inicio"><span class="brand-mark">↻</span> ReCiclo<span
         class="brand-dot">.</span></a>
+    <button id="boton-menu" class="menu-toggle button secondary" aria-controls="menu-principal" [attr.aria-expanded]="menuAbierto()" (click)="menuAbierto.set(!menuAbierto())" aria-label="Menú principal">☰</button>
+    </div>
+    <div id="menu-principal" class="sidebar-menu" [class.abierto]="menuAbierto()">
     <p class="sidebar-label">GESTIÓN CIRCULAR</p>
     <nav aria-label="Navegación principal">
       <a routerLink="/" routerLinkActive="selected" [routerLinkActiveOptions]="{ exact: true }"><span
           aria-hidden="true">⌂</span>Inicio</a>
       <a routerLink="/residuos" routerLinkActive="selected"><span aria-hidden="true">▤</span>Residuos</a>
       <a routerLink="/consultas" routerLinkActive="selected"><span aria-hidden="true">⌕</span>Consultas</a>
+      <a routerLink="/solicitudes" routerLinkActive="selected"><span aria-hidden="true">⇄</span>{{ auth.admin() ? 'Solicitudes recibidas' : 'Mis solicitudes' }}</a>
       @if (auth.admin()) {
       <a routerLink="/usuarios" routerLinkActive="selected"><span aria-hidden="true">♧</span>Usuarios</a>
       }
@@ -24,6 +29,7 @@
       </div>
     </a>
     <button class="logout" (click)="auth.logout()">Cerrar sesión <span>↗</span></button>
+    </div>
   </aside>
   <main class="main-content">
     <div class="topbar">

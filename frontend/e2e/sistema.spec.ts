@@ -1,3 +1,4 @@
+import { navegar, salir, abrirMenu } from './ayudas';
 import { test, expect } from '@playwright/test';
 
 test('ADMIN registra, consulta, edita y elimina el mismo material', async ({ page }) => {
@@ -21,7 +22,7 @@ test('ADMIN registra, consulta, edita y elimina el mismo material', async ({ pag
   await page.getByLabel('Cantidad').fill('3.75');
   await page.getByRole('button', { name: 'Guardar cambios' }).click();
   await expect(page.getByText('3.75', { exact: false }).first()).toBeVisible();
-  await page.getByRole('link', { name: 'Consultas', exact: true }).click();
+  await navegar(page, 'Consultas');
   await page.getByLabel('Empresa', { exact: true }).fill('Empresa E2E');
   await page.getByRole('button', { name: 'Buscar materiales' }).click();
   await expect(page.getByText('3.75 kg', { exact: false })).toBeVisible();
@@ -30,7 +31,7 @@ test('ADMIN registra, consulta, edita y elimina el mismo material', async ({ pag
   page.once('dialog', (dialog) => dialog.accept());
   await page.getByRole('button', { name: 'Eliminar residuo' }).click();
   await expect(page).toHaveURL(/\/residuos$/);
-  await page.getByRole('link', { name: 'Usuarios', exact: true }).click();
+  await navegar(page, 'Usuarios');
   await expect(page.getByRole('heading', { name: 'Usuarios' })).toBeVisible();
   await expect(page.getByText('admin', { exact: true })).toBeVisible();
 });
@@ -45,7 +46,7 @@ test('USER consulta y las rutas ADMIN están protegidas', async ({ page }) => {
   await expect(page.getByRole('link', { name: '+ Registrar residuo' })).toHaveCount(0);
   await page.goto('/usuarios');
   await expect(page.getByRole('heading', { name: /Hola,/ })).toBeVisible();
-  await page.getByRole('button', { name: /Cerrar sesión/ }).click();
+  await salir(page);
   await expect(page).toHaveURL(/login/);
 });
 
@@ -78,14 +79,15 @@ test('ADMIN cambia el rol de una cuenta registrada', async ({ page, request }) =
   await page.getByLabel('Usuario', { exact: true }).fill('admin');
   await page.getByLabel('Contraseña', { exact: true }).fill('admin123');
   await page.getByRole('button', { name: 'Ingresar a ReCiclo' }).click();
-  await page.getByRole('link', { name: 'Usuarios', exact: true }).click();
+  await navegar(page, 'Usuarios');
   const row = page.getByRole('row').filter({ hasText: username });
   await row.getByRole('combobox').selectOption('ADMIN');
   await row.getByRole('button', { name: 'Guardar rol' }).click();
   await expect(page.getByRole('status')).toContainText('Rol actualizado');
-  await page.getByRole('button', { name: /Cerrar sesión/ }).click();
+  await salir(page);
   await page.getByLabel('Usuario', { exact: true }).fill(username);
   await page.getByLabel('Contraseña', { exact: true }).fill('clave123');
   await page.getByRole('button', { name: 'Ingresar a ReCiclo' }).click();
+  await abrirMenu(page);
   await expect(page.getByRole('link', { name: 'Usuarios', exact: true })).toBeVisible();
 });

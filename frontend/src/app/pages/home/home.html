@@ -19,31 +19,33 @@
   @if (error) {
     <p class="alert error" role="alert">{{ error }}</p>
   }
-  @if (!auth.puedeConsultar()) {
-    <p class="alert">
-      Tu cuenta de empresa está activa. El catálogo requiere un rol USER o ADMIN. Comunícate con el
-      administrador para habilitar el acceso.
-    </p>
-  }
   <div class="metrics">
     <article>
       <span class="metric-icon" aria-hidden="true">▤</span>
-      <span>Materiales registrados</span><strong>{{ cargando ? '…' : datos.length }}</strong
-      ><small>Registros en la comunidad</small>
+      <span>Materiales registrados</span><strong>{{ cargando ? '…' : resumen.registros }}</strong
+      ><small>{{ auth.admin() ? 'Todo el inventario' : 'Catálogo disponible' }}</small>
     </article>
     <article>
       <span class="metric-icon" aria-hidden="true">↻</span>
       <span>Disponibles para intercambio</span><strong>{{ cargando ? '…' : disponibles }}</strong
       ><small>Listos para un nuevo ciclo</small>
       <div class="metric-bar" aria-hidden="true">
-        <i [style.width.%]="datos.length ? (disponibles / datos.length) * 100 : 0"></i>
+        <i [style.width.%]="resumen.registros ? (disponibles / resumen.registros) * 100 : 0"></i>
       </div>
     </article>
     <article>
       <span class="metric-icon" aria-hidden="true">⌂</span>
-      <span>Empresas participantes</span><strong>{{ cargando ? '…' : empresas }}</strong
-      ><small>Con materiales registrados</small>
+      <span>Kilos registrados</span><strong>{{ cargando ? '…' : resumen.totalKg }}</strong
+      ><small>Solo registros en kg</small>
     </article>
+  </div>
+  @if (auth.admin()) {
+    <a class="panel pendientes" routerLink="/solicitudes"><div><h2>Solicitudes pendientes</h2><p class="muted">Propuestas que esperan tu respuesta</p></div><strong>{{ cargando ? '…' : resumen.solicitudesPendientes }}</strong><span aria-hidden="true">→</span></a>
+  }
+  <div class="graficos">
+    <app-grafico-barras titulo="Kg por tipo" [grupos]="resumen.porTipo" [cargando]="cargando" />
+    <app-grafico-barras titulo="Top de empresas por kg" [grupos]="resumen.porEmpresa" [cargando]="cargando" />
+    <app-grafico-barras titulo="Kg por mes" [grupos]="resumen.porMes" [cargando]="cargando" />
   </div>
   @if (auth.puedeConsultar()) {
     <app-avisos-intercambio [avisos]="avisos" [cargando]="cargando" />

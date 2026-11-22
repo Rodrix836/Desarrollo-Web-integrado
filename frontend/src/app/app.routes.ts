@@ -30,6 +30,10 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/consultas/consultas').then((m) => m.ConsultasPage),
       },
       {
+        path: 'solicitudes',
+        loadComponent: () => import('./pages/solicitudes/solicitudes').then((m) => m.SolicitudesPage),
+      },
+      {
         path: 'usuarios',
         canActivate: [adminGuard],
         loadComponent: () => import('./pages/usuarios/usuarios').then((m) => m.UsuariosPage),
