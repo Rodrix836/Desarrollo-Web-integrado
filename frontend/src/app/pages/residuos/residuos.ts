@@ -29,6 +29,11 @@ export class ResiduosPage implements OnInit {
   nombreTipo = nombreTipo;
   nombreEstado = nombreEstado;
   fechaLegible = fechaLegible;
+  pagina = 1;
+  readonly tamanio = 10;
+  get totalPaginas() { return Math.max(1, Math.ceil(this.filtrados.length / this.tamanio)); }
+  get paginados() { return this.filtrados.slice((this.pagina - 1) * this.tamanio, this.pagina * this.tamanio); }
+  cambiarFiltro() { this.pagina = 1; }
   busqueda = '';
   tipo = '';
   estado = '';
@@ -44,6 +49,7 @@ export class ResiduosPage implements OnInit {
     forkJoin({ datos: this.api.listar(), avisos: this.api.avisos() }).subscribe({
       next: (r) => {
         this.datos = r.datos;
+        this.pagina = Math.min(this.pagina, this.totalPaginas);
         this.avisos = r.avisos;
         this.cargando = false;
       },

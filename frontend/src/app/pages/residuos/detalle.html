@@ -48,6 +48,10 @@
           <dd>{{ r.intercambioPor ? nombreTipo(r.intercambioPor) : 'Sin preferencia' }}</dd>
         </div>
       </dl>
+      <div class="auditoria">
+        <p>Registrado por {{ r.creadoPor || 'Sin información' }} el {{ fechaHora(r.creadoEn) }}</p>
+        <p>Última edición por {{ r.actualizadoPor || 'Sin información' }} el {{ fechaHora(r.actualizadoEn) }}</p>
+      </div>
       @if (auth.admin()) {
         <div class="form-actions">
           <button class="button danger" [disabled]="eliminando" (click)="eliminar()">
@@ -59,6 +63,28 @@
         </div>
       }
     </div>
+    @if (auth.puedeSolicitar() && r.estadoPublicacion === 'DISPONIBLE') {
+      <form class="panel detail-panel propuesta-panel" #f="ngForm" (ngSubmit)="solicitar(f)">
+        <h2>Solicitar intercambio</h2>
+        <p class="muted">Cuéntale a la comunidad qué puedes ofrecer a cambio.</p>
+        @if (mensaje) { <p class="alert success" role="status">{{ mensaje }} <a routerLink="/solicitudes">Ver mis solicitudes →</a></p> }
+        <fieldset class="exchange-fields" [disabled]="enviando || solicitada">
+          <legend class="sr-only">Tu propuesta</legend>
+          <div class="form-grid">
+            <div><label for="ofrece">Qué ofreces (opcional)</label>
+              <select id="ofrece" name="ofrece" [(ngModel)]="ofrece"><option value="">Sin especificar</option>
+                @for (t of tipos; track t.value) { <option [value]="t.value">{{ t.label }}</option> }
+              </select></div>
+            <div><label for="cantidadOfrecida">Cantidad ofrecida en kg (opcional)</label>
+              <input id="cantidadOfrecida" name="cantidadOfrecida" type="number" min="0" step="any" [(ngModel)]="cantidadOfrecida" /></div>
+            <div class="full"><label for="mensaje">Mensaje (opcional)</label>
+              <textarea id="mensaje" name="mensaje" [(ngModel)]="propuesta" maxlength="500" rows="3"></textarea>
+              <small class="muted">{{ propuesta.length }}/500 caracteres</small></div>
+          </div>
+          <div class="form-actions"><button class="button primary" [disabled]="f.invalid || enviando || solicitada">{{ enviando ? 'Enviando…' : 'Enviar solicitud' }}</button></div>
+        </fieldset>
+      </form>
+    }
   } @else if (!error) {
     <p class="empty" role="status">Cargando registro…</p>
   }

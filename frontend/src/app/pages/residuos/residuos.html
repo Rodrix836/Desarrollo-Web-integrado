@@ -15,12 +15,12 @@
       ><input
         id="buscar"
         type="search"
-        [(ngModel)]="busqueda"
+        [(ngModel)]="busqueda" (ngModelChange)="cambiarFiltro()"
         placeholder="Buscar material o empresa…"
       />
     </div>
     <label class="sr-only" for="tipo">Filtrar por tipo</label
-    ><select id="tipo" [(ngModel)]="tipo">
+    ><select id="tipo" [(ngModel)]="tipo" (ngModelChange)="cambiarFiltro()">
       <option value="">Todos los materiales</option>
       @for (t of tipos; track t.value) {
         <option [value]="t.value">{{ t.label }}</option>
@@ -33,7 +33,7 @@
   <div class="toolbar secondary-filters">
     @if (auth.admin()) {
       <label class="sr-only" for="estado">Estado de publicación</label>
-      <select id="estado" [(ngModel)]="estado">
+      <select id="estado" [(ngModel)]="estado" (ngModelChange)="cambiarFiltro()">
         <option value="">Todos los estados</option>
         @for (e of estados; track e.value) {
           <option [value]="e.value">{{ e.label }}</option>
@@ -41,7 +41,7 @@
       </select>
     }
     <label class="sr-only" for="preferencia">Preferencia de intercambio</label>
-    <select id="preferencia" [(ngModel)]="preferencia">
+    <select id="preferencia" [(ngModel)]="preferencia" (ngModelChange)="cambiarFiltro()">
       <option value="">Todas las preferencias</option>
       @for (t of tipos; track t.value) {
         <option [value]="t.value">{{ t.label }}</option>
@@ -85,9 +85,9 @@
           </tr>
         </thead>
         <tbody>
-          @for (r of filtrados; track r.id) {
+          @for (r of paginados; track r.id) {
             <tr>
-              <td>
+              <td data-label="Material">
                 <a class="material-name" [routerLink]="['/residuos', r.id]"
                   ><span class="material-icon" [attr.data-tipo]="r.tipoResiduo">{{ nombreTipo(r.tipoResiduo).charAt(0) }}</span>
                   <div>
@@ -97,11 +97,11 @@
                   </div></a
                 >
               </td>
-              <td class="quantity">
+              <td data-label="Cantidad" class="quantity">
                 {{ r.cantidad }} <span class="muted">{{ r.unidadMedida }}</span>
               </td>
-              <td>{{ r.empresa || 'Sin empresa' }}</td>
-              <td>
+              <td data-label="Empresa">{{ r.empresa || 'Sin empresa' }}</td>
+              <td data-label="Publicación">
                 {{
                   r.fechaPublicacion
                     ? fechaLegible(r.fechaPublicacion)
@@ -110,7 +110,7 @@
                       : 'Sin programar'
                 }}
               </td>
-              <td>
+              <td data-label="Estado">
                 <span
                   class="status"
                   [class.available]="r.estadoPublicacion === 'DISPONIBLE'"
@@ -118,11 +118,16 @@
                   >{{ nombreEstado(r.estadoPublicacion) }}</span
                 >
               </td>
-              <td><a class="row-link" [routerLink]="['/residuos', r.id]">Ver detalle ↗</a></td>
+              <td data-label="Acciones"><a class="row-link" [routerLink]="['/residuos', r.id]">Ver detalle ↗</a></td>
             </tr>
           }
         </tbody>
       </table>
+      <nav class="paginacion" aria-label="Páginas del inventario">
+        <button class="button secondary" (click)="pagina = pagina - 1" [disabled]="pagina === 1">Anterior</button>
+        <span role="status">Página {{ pagina }} de {{ totalPaginas }}</span>
+        <button class="button secondary" (click)="pagina = pagina + 1" [disabled]="pagina === totalPaginas">Siguiente</button>
+      </nav>
     }
   </div>
   <p class="table-footnote">

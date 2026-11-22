@@ -1,0 +1,61 @@
+<section class="page">
+  <div class="page-heading">
+    <div>
+      <p class="eyebrow">DALE CONTINUIDAD AL INTERCAMBIO</p>
+      <h1>{{ auth.admin() ? 'Solicitudes recibidas' : 'Mis solicitudes' }}</h1>
+      <p class="muted">{{ auth.admin() ? 'Revisa las propuestas y responde a la comunidad.' : 'Consulta las respuestas y gestiona tus propuestas.' }}</p>
+    </div>
+    <button class="button secondary" (click)="cargar()" [disabled]="cargando || guardando">Actualizar</button>
+  </div>
+  @if (error) { <p class="alert error" role="alert">{{ error }}</p> }
+  @if (mensaje) { <p class="alert success" role="status">{{ mensaje }}</p> }
+  <div class="toolbar">
+    <div>
+      <label for="estado-solicitud">Filtrar por estado</label>
+      <select id="estado-solicitud" [(ngModel)]="estado">
+        <option value="">Todos los estados</option>
+        @for (e of estados; track e[0]) { <option [value]="e[0]">{{ e[1] }}</option> }
+      </select>
+    </div>
+  </div>
+  <div class="panel table-wrap">
+    @if (cargando) {
+      <p class="empty" role="status">Cargando solicitudes…</p>
+    } @else if (!filtradas.length) {
+      <div class="empty"><h2>No hay solicitudes con este estado</h2><p>Las propuestas de intercambio aparecerán aquí.</p></div>
+    } @else {
+      <table class="solicitudes-table">
+        <thead><tr><th>Material</th><th>Propuesta</th><th>Estado y respuesta</th><th>Fechas</th><th>Acciones</th></tr></thead>
+        <tbody>
+          @for (s of filtradas; track s.id) {
+            <tr>
+              <td data-label="Material"><strong>{{ nombreTipo(s.residuoTipo) }} #{{ s.residuoId }}</strong><p>{{ s.empresaDestino }}</p>
+                <small class="muted">Solicitud #{{ s.id }} · {{ s.solicitante }}</small></td>
+              <td data-label="Propuesta"><strong>{{ s.ofrece ? nombreTipo(s.ofrece) : 'Sin material indicado' }}</strong>
+                @if (s.cantidadOfrecida !== null) { <p>{{ s.cantidadOfrecida }} kg</p> }
+                <p class="mensaje-solicitud">{{ s.mensaje || 'Sin mensaje' }}</p></td>
+              <td data-label="Estado y respuesta"><span class="status" [attr.data-estado]="s.estado">{{ estadosSolicitud[s.estado] }}</span>
+                <p class="mensaje-solicitud">{{ s.respuesta || 'Sin respuesta' }}</p>
+                @if (s.respondidoPor) { <small class="muted">Por {{ s.respondidoPor }}</small> }</td>
+              <td data-label="Fechas"><small>Enviada: {{ fechaHora(s.creadoEn) }}</small><br /><small>Actualizada: {{ fechaHora(s.actualizadoEn) }}</small></td>
+              <td data-label="Acciones">
+                @if (s.estado === 'PENDIENTE') {
+                  @if (auth.admin()) {
+                    <label [for]="'respuesta-' + s.id">Respuesta opcional</label>
+                    <textarea [id]="'respuesta-' + s.id" [(ngModel)]="respuestas[s.id]" maxlength="300" rows="2" [disabled]="guardando"></textarea>
+                    <div class="acciones-solicitud">
+                      <button class="button primary" (click)="decidir(s, 'ACEPTADA')" [disabled]="guardando">Aceptar</button>
+                      <button class="button danger" (click)="decidir(s, 'RECHAZADA')" [disabled]="guardando">Rechazar</button>
+                    </div>
+                  } @else {
+                    <button class="button secondary" (click)="cancelar(s)" [disabled]="guardando">Cancelar solicitud</button>
+                  }
+                } @else { <span class="muted">Finalizada</span> }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+</section>

@@ -3,7 +3,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ApiService, mensajeError } from '../../core/api.service';
-import { fechaLegible, hoyLima, ResiduoInput, tipos } from '../../core/models';
+import { aResiduoInput, fechaLegible, hoyLima, ResiduoInput, tipos } from '../../core/models';
 
 @Component({ imports: [FormsModule, RouterLink, KeyValuePipe], templateUrl: './formulario.html' })
 export class FormularioPage implements OnInit {
@@ -36,12 +36,11 @@ export class FormularioPage implements OnInit {
     this.cargando = true;
     this.api.consultar(this.id).subscribe({
       next: (r) => {
-        const { id, estadoPublicacion, ...datos } = r;
         this.fechaOriginal = r.fechaPublicacion;
         this.preferenciaHistorica = tipos.some((t) => t.value === r.intercambioPor)
           ? ''
           : r.intercambioPor;
-        this.datos = datos;
+        this.datos = aResiduoInput(r);
         if (r.disponible && !r.fechaPublicacion) this.datos.fechaPublicacion = hoyLima();
         this.cargando = false;
       },
