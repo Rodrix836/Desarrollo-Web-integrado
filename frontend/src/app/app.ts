@@ -8,6 +8,12 @@ import { AuthService } from './core/auth.service';
 })
 export class App {
   auth = inject(AuthService);
+  hoy = new Intl.DateTimeFormat('es-PE', {
+    timeZone: 'America/Lima',
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  }).format(new Date());
   constructor() {
     if (this.auth.token()) this.auth.refresh().subscribe({ error: () => this.auth.logout() });
   }

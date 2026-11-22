@@ -26,10 +26,15 @@
         @for (u of usuarios; track u.id) {
           <tr>
             <td>
-              <strong>{{ u.username }}</strong>
+              <span class="user-cell"
+                ><span class="avatar small">{{ u.nombre.charAt(0) }}</span
+                ><strong>{{ u.username }}</strong></span
+              >
             </td>
             <td>{{ u.nombre }}</td>
             <td>
+              <div class="role-cell">
+              <span class="role-badge" [attr.data-rol]="u.rol">{{ u.rol }}</span>
               <label class="sr-only" [for]="'rol-' + u.id">Rol de {{ u.username }}</label
               ><select
                 [id]="'rol-' + u.id"
@@ -40,6 +45,7 @@
                 <option value="ADMIN">ADMIN</option>
                 <option value="EMPRESA">EMPRESA</option>
               </select>
+              </div>
             </td>
             <td>
               <button

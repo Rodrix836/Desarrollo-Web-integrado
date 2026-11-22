@@ -1,4 +1,4 @@
-<section class="page perfil-page">
+<section class="page narrow perfil-page">
   <div class="page-heading">
     <div>
       <p class="eyebrow">TU CUENTA</p>
@@ -9,23 +9,42 @@
   </div>
 
   @if (cargando) {
-  <p class="empty">Cargando perfil…</p>
+    <div class="panel skeleton-list" role="status">
+      <span class="sr-only">Cargando perfil…</span>
+      @for (n of [1, 2, 3]; track n) {
+        <div class="skeleton-row"><i></i><b></b><b class="short"></b></div>
+      }
+    </div>
   } @else if (error) {
-  <p class="alert error" role="alert">{{ error }}</p>
+    <p class="alert error" role="alert">{{ error }}</p>
   } @else if (auth.usuario(); as u) {
-  <div class="panel perfil-card">
-    <div class="perfil-row">
-      <span class="perfil-label">Nombre</span>
-      <strong>{{ u.nombre }}</strong>
+    <div class="panel profile-hero">
+      <span class="avatar xl">{{ u.nombre.charAt(0) }}</span>
+      <div>
+        <h2>{{ u.nombre }}</h2>
+        <p class="muted">&#64;{{ u.username }}</p>
+      </div>
+      <span class="role-badge" [attr.data-rol]="u.rol">{{ u.rol }}</span>
     </div>
-    <div class="perfil-row">
-      <span class="perfil-label">Usuario</span>
-      <strong>{{ u.username }}</strong>
+    <div class="panel detail-panel profile-details">
+      <dl>
+        <div>
+          <dt>Nombre</dt>
+          <dd>{{ u.nombre }}</dd>
+        </div>
+        <div>
+          <dt>Usuario</dt>
+          <dd>{{ u.username }}</dd>
+        </div>
+        <div>
+          <dt>Rol</dt>
+          <dd>{{ u.rol }}</dd>
+        </div>
+        <div>
+          <dt>Permisos</dt>
+          <dd>{{ descripcionRol(u.rol) }}</dd>
+        </div>
+      </dl>
     </div>
-    <div class="perfil-row">
-      <span class="perfil-label">Rol</span>
-      <span class="status rol-badge">{{ u.rol }}</span>
-    </div>
-  </div>
   }
 </section>
