@@ -3,10 +3,13 @@ export interface Usuario {
   username: string;
   nombre: string;
   rol: string;
-  empresa?: string;
+  empresa?: string | null;
+  activo?: boolean;
+  creadoEn?: string;
 }
 export interface Sesion extends Usuario {
   token: string;
+  expiraEnMs?: number;
 }
 export type EstadoPublicacion = 'NO_PUBLICADO' | 'PROGRAMADO' | 'DISPONIBLE';
 export interface Residuo {
@@ -21,8 +24,87 @@ export interface Residuo {
   disponible: boolean;
   fechaPublicacion: string | null;
   estadoPublicacion: EstadoPublicacion;
+  propietario?: string | null;
+  creadoPor?: string | null;
+  creadoEn?: string | null;
+  actualizadoPor?: string | null;
+  actualizadoEn?: string | null;
 }
-export type ResiduoInput = Omit<Residuo, 'id' | 'estadoPublicacion' | 'fecha'> & { fecha?: string };
+export interface ResiduoInput {
+  tipoResiduo: string;
+  cantidad: number;
+  unidadMedida: string;
+  fecha?: string;
+  descripcion: string;
+  empresa: string;
+  intercambioPor: string;
+  disponible: boolean;
+  fechaPublicacion: string | null;
+}
+export function aResiduoInput(r: Residuo): ResiduoInput {
+  return {
+    tipoResiduo: r.tipoResiduo,
+    cantidad: r.cantidad,
+    unidadMedida: r.unidadMedida,
+    fecha: r.fecha,
+    descripcion: r.descripcion,
+    empresa: r.empresa,
+    intercambioPor: r.intercambioPor,
+    disponible: r.disponible,
+    fechaPublicacion: r.fechaPublicacion,
+  };
+}
+export type EstadoSolicitud = 'PENDIENTE' | 'ACEPTADA' | 'RECHAZADA' | 'CANCELADA';
+export interface Solicitud {
+  id: number;
+  residuoId: number;
+  residuoTipo: string;
+  empresaDestino: string;
+  solicitante: string;
+  empresaSolicitante: string | null;
+  ofrece: string | null;
+  cantidadOfrecida: number | null;
+  mensaje: string;
+  estado: EstadoSolicitud;
+  respuesta: string;
+  creadoEn: string;
+  actualizadoEn: string;
+}
+export interface SolicitudInput {
+  residuoId: number;
+  ofrece: string | null;
+  cantidadOfrecida: number | null;
+  mensaje: string;
+}
+export interface GrupoEstadistica {
+  clave: string;
+  etiqueta: string;
+  registros: number;
+  kg: number;
+}
+export interface Estadisticas {
+  registros: number;
+  disponibles: number;
+  totalKg: number;
+  porTipo: GrupoEstadistica[];
+  porEmpresa: GrupoEstadistica[];
+  porMes: GrupoEstadistica[];
+  solicitudesPendientes: number;
+}
+export const estadosSolicitud: Record<EstadoSolicitud, string> = {
+  PENDIENTE: 'Pendiente',
+  ACEPTADA: 'Aceptada',
+  RECHAZADA: 'Rechazada',
+  CANCELADA: 'Cancelada',
+};
+export function fechaHora(instante: string | null | undefined): string {
+  if (!instante) return '—';
+  return new Intl.DateTimeFormat('es-PE', {
+    timeZone: 'America/Lima',
+    dateStyle: 'short',
+    timeStyle: 'short',
+  }).format(new Date(instante));
+}
 export interface AvisoIntercambio {
   id: number;
   tipoResiduo: string;

@@ -37,7 +37,7 @@ for ($intento = 0; $intento -lt 20; $intento++) {
 }
 $env:SERVER_PORT = @{ auth = '8081'; residuos = '8082'; consultas = '8083' }[$Servicio]
 $env:SERVER_ADDRESS = '127.0.0.1'
-$env:SPRING_PROFILES_ACTIVE = ''
+$env:SPRING_PROFILES_ACTIVE = 'dev'
 if ($env:RECICLO_JWT_SECRET.Length -lt 32) { throw 'La clave local está vacía o incompleta.' }
 # Cada servicio recibe un directorio de datos propio.
 $carpetaDatos = (Join-Path $raiz "$Servicio-api/data").Replace('\', '/')
@@ -45,7 +45,7 @@ if ($Servicio -eq 'auth') {
     $env:SPRING_DATASOURCE_URL = "jdbc:h2:file:$carpetaDatos/authdb"
 } elseif ($Servicio -eq 'residuos') {
     $env:SPRING_DATASOURCE_URL = "jdbc:h2:file:$carpetaDatos/residuosdb"
-    $env:SPRING_PROFILES_ACTIVE = 'demo'
+    $env:SPRING_PROFILES_ACTIVE = 'demo,dev'
 }
 & mvn.cmd -f "$Servicio-api/pom.xml" spring-boot:run
 exit $LASTEXITCODE

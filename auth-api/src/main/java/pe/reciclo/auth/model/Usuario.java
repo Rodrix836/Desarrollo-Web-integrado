@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+import java.time.Instant;
+
 @Entity
 @Table(name = "usuarios")
 public class Usuario {
@@ -28,18 +30,25 @@ public class Usuario {
     @Column(nullable = false, length = 20)
     private Rol rol;
 
-    @Column(length = 100)
-    private String empresa;
+    /** null en filas anteriores a esta columna: se consideran activas. */
+    private Boolean activo = Boolean.TRUE;
+
+    private Instant creadoEn;
 
     public Usuario() {
     }
 
-    public Usuario(String username, String passwordHash, String nombre, Rol rol, String empresa) {
+    public Usuario(String username, String passwordHash, String nombre, Rol rol) {
         this.username = username;
         this.passwordHash = passwordHash;
         this.nombre = nombre;
         this.rol = rol;
-        this.empresa = empresa;
+    }
+
+    @PrePersist
+    void alCrear() {
+        if (creadoEn == null) creadoEn = Instant.now();
+        if (activo == null) activo = Boolean.TRUE;
     }
 
     public Long getId() {
@@ -82,11 +91,15 @@ public class Usuario {
         this.rol = rol;
     }
 
-    public String getEmpresa() {
-        return empresa;
+    public boolean isActivo() {
+        return !Boolean.FALSE.equals(activo);
     }
 
-    public void setEmpresa(String empresa) {
-        this.empresa = empresa;
+    public void setActivo(boolean activo) {
+        this.activo = activo;
+    }
+
+    public Instant getCreadoEn() {
+        return creadoEn;
     }
 }

@@ -7,11 +7,15 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Version;
 import pe.reciclo.residuos.dto.ResiduoRespuesta;
 import pe.reciclo.residuos.dto.ResiduoSolicitud;
+import pe.reciclo.residuos.security.Actor;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 
 @Entity
@@ -52,6 +56,17 @@ public class RegistroResiduo {
     @Column(nullable = false)
     private Boolean disponible;
 
+    /** Usuario (sub del JWT) que registró el material; null en registros anteriores. */
+    @Column(length = 50)
+    private String creadoPor;
+
+    private Instant creadoEn;
+
+    @Column(length = 50)
+    private String actualizadoPor;
+
+    private Instant actualizadoEn;
+
     protected RegistroResiduo() {
     }
 
@@ -71,6 +86,37 @@ public class RegistroResiduo {
         disponible = solicitud.disponible();
     }
 
+    @PrePersist
+    void alCrear() {
+        creadoEn = Instant.now();
+        actualizadoEn = creadoEn;
+    }
+
+    @PreUpdate
+    void alActualizar() {
+        actualizadoEn = Instant.now();
+    }
+
+    public void registrarAutor(Actor actor) {
+        creadoPor = actor.usuario();
+        actualizadoPor = actor.usuario();
+    }
+
+    public void registrarCambio(Actor actor) {
+        actualizadoPor = actor.usuario();
+    }
+
+    /** Al aceptar un intercambio el material deja de mostrarse en el catálogo. */
+    public void retirarDelCatalogo() {
+        disponible = false;
+    }
+
+    public Long getId() { return id; }
+
+    public TipoResiduo getTipoResiduo() { return tipoResiduo; }
+
+    public String getEmpresa() { return empresa; }
+
     public EstadoPublicacion estado(LocalDate hoy) {
         if (!Boolean.TRUE.equals(disponible)) return EstadoPublicacion.NO_PUBLICADO;
         if (fechaPublicacion != null && fechaPublicacion.isAfter(hoy)) return EstadoPublicacion.PROGRAMADO;
@@ -80,6 +126,7 @@ public class RegistroResiduo {
 
     public ResiduoRespuesta aRespuesta(LocalDate hoy) {
         return new ResiduoRespuesta(id, tipoResiduo, cantidad, unidadMedida, fecha,
-                descripcion, empresa, intercambioPor, disponible, fechaPublicacion, estado(hoy));
+                descripcion, empresa, intercambioPor, disponible, fechaPublicacion, estado(hoy),
+                creadoPor, creadoEn, actualizadoPor, actualizadoEn);
     }
 }
