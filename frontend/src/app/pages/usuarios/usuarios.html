@@ -1,72 +1,40 @@
 <section class="page">
-  <div class="page-heading">
-    <div>
-      <p class="eyebrow">ADMINISTRACIÓN DE LA COMUNIDAD</p>
-      <h1>Usuarios</h1>
-      <p class="muted">Gestiona los permisos de acceso a ReCiclo.</p>
-    </div>
-  </div>
-  @if (error) {
-    <p class="alert error" role="alert">{{ error }}</p>
-  }
-  @if (mensaje) {
-    <p class="alert success" role="status">{{ mensaje }}</p>
-  }
+  <div class="page-heading"><div><p class="eyebrow">ADMINISTRACIÓN DE LA COMUNIDAD</p><h1>Usuarios</h1><p class="muted">Gestiona las cuentas y los permisos de acceso a ReCiclo.</p></div></div>
+  @if (error) { <p class="alert error" role="alert">{{ error }}</p> }
+  @if (mensaje) { <p class="alert success" role="status">{{ mensaje }}</p> }
   <div class="panel table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>Usuario</th>
-          <th>Nombre</th>
-          <th>Rol</th>
-          <th>Acción</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (u of usuarios; track u.id) {
-          <tr>
-            <td>
-              <span class="user-cell"
-                ><span class="avatar small">{{ u.nombre.charAt(0) }}</span
-                ><strong>{{ u.username }}</strong></span
-              >
-            </td>
-            <td>{{ u.nombre }}</td>
-            <td>
-              <div class="role-cell">
-              <span class="role-badge" [attr.data-rol]="u.rol">{{ u.rol }}</span>
-              <label class="sr-only" [for]="'rol-' + u.id">Rol de {{ u.username }}</label
-              ><select
-                [id]="'rol-' + u.id"
-                [(ngModel)]="seleccion[u.id!]"
-                [disabled]="u.username === auth.usuario()?.username"
-              >
-                <option value="USER">USER</option>
-                <option value="ADMIN">ADMIN</option>
-                <option value="EMPRESA">EMPRESA</option>
-              </select>
-              </div>
-            </td>
-            <td>
-              <button
-                class="button secondary"
-                (click)="guardar(u)"
-                [disabled]="
-                  guardando !== undefined ||
-                  u.rol === seleccion[u.id!] ||
-                  u.username === auth.usuario()?.username
-                "
-              >
-                Guardar rol
-              </button>
-            </td>
-          </tr>
-        }
-      </tbody>
-    </table>
+    @if (cargando) { <p class="empty" role="status">Cargando usuarios…</p> }
+    @else if (!usuarios.length) { <p class="empty">No hay usuarios para mostrar.</p> }
+    @else {
+      <table class="usuarios-table">
+        <thead><tr><th>Usuario</th><th>Nombre</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <tbody>
+          @for (u of usuarios; track u.id) {
+            <tr>
+              <td data-label="Usuario"><span class="user-cell"><span class="avatar small">{{ u.nombre.charAt(0) }}</span><strong>{{ u.username }}</strong></span>
+                @if (propia(u)) { <small class="muted">Tu cuenta</small> }</td>
+              <td data-label="Nombre">
+                <label class="sr-only" [for]="'nombre-' + u.id">Nombre de {{ u.username }}</label>
+                <input [id]="'nombre-' + u.id" [(ngModel)]="nombres[u.id!]" maxlength="100" required [disabled]="propia(u) || guardando !== undefined" />
+                <button class="button secondary" (click)="guardarNombre(u)" [disabled]="propia(u) || guardando !== undefined || !nombres[u.id!]?.trim() || nombres[u.id!] === u.nombre">Guardar nombre</button>
+              </td>
+              <td data-label="Rol"><div class="role-cell">
+                <span class="role-badge" [attr.data-rol]="u.rol">{{ u.rol }}</span>
+                <label class="sr-only" [for]="'rol-' + u.id">Rol de {{ u.username }}</label>
+                <select [id]="'rol-' + u.id" [(ngModel)]="seleccion[u.id!]" [disabled]="propia(u) || guardando !== undefined">
+                  <option value="USER">USER</option><option value="ADMIN">ADMIN</option>
+                </select>
+              </div></td>
+              <td data-label="Estado"><button class="button secondary" role="switch" [attr.aria-checked]="u.activo" [attr.aria-label]="'Cuenta activa de ' + u.username" (click)="cambiarEstado(u)" [disabled]="propia(u) || guardando !== undefined">{{ u.activo ? 'Activo' : 'Inactivo' }}</button></td>
+              <td data-label="Acciones"><div class="acciones-usuario">
+                <button class="button secondary" (click)="guardar(u)" [disabled]="propia(u) || guardando !== undefined || seleccion[u.id!] === u.rol">Guardar rol</button>
+                <button class="button danger" (click)="eliminar(u)" [disabled]="propia(u) || guardando !== undefined">Eliminar</button>
+              </div></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
   </div>
-  <p class="table-footnote">
-    ADMIN gestiona materiales y usuarios. USER consulta materiales. EMPRESA requiere un permiso USER
-    o ADMIN para acceder al catálogo actual.
-  </p>
+  <p class="table-footnote">ADMIN gestiona materiales, responde solicitudes y administra usuarios. USER consulta el catálogo, solicita intercambios y cancela sus propuestas pendientes. Para cambiar tu nombre, visita Mi perfil.</p>
 </section>

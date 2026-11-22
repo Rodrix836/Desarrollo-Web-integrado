@@ -34,7 +34,9 @@ export class LoginPage {
       },
       error: (error) =>
         (this.error =
-          error.status === 401 ? 'Usuario o contraseña incorrectos.' : mensajeError(error)),
+          error.status === 429 ? 'Demasiados intentos. Espera unos minutos y vuelve a intentarlo.'
+            : error.status === 403 ? 'Tu cuenta está desactivada. Comunícate con el administrador.'
+            : error.status === 401 ? 'Usuario o contraseña incorrectos.' : mensajeError(error)),
     });
   }
 }
