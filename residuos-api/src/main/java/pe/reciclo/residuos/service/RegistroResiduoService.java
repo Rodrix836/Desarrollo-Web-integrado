@@ -190,6 +190,9 @@ public class RegistroResiduoService {
     private ResiduoSolicitud preparar(ResiduoSolicitud s, ResiduoRespuesta anterior) {
         LocalDate hoy = LocalDate.now(clock);
         Map<String, String> errores = new TreeMap<>();
+        if (s.tipoResiduo() != null && !s.tipoResiduo().vigente()) {
+            errores.put("tipoResiduo", "Selecciona un tipo de residuo vigente: plástico, papel y cartón, vidrio, metal u orgánico.");
+        }
         if (!"kg".equals(s.unidadMedida()) && (anterior == null || !Objects.equals(s.unidadMedida(), anterior.unidadMedida()))) {
             errores.put("unidadMedida", "Los materiales nuevos se registran en kilos (kg). Conserva la unidad de los registros históricos.");
         }
@@ -197,8 +200,11 @@ public class RegistroResiduoService {
             if (s.empresa().isBlank()) {
                 errores.put("empresa", "Indica la empresa propietaria para habilitar el intercambio.");
             }
-            boolean catalogada = Arrays.stream(TipoResiduo.values()).anyMatch(t -> t.name().equals(s.intercambioPor()));
-            boolean historicaSinCambios = anterior != null && s.intercambioPor().equals(anterior.intercambioPor());
+            boolean catalogada = Arrays.stream(TipoResiduo.values()).filter(TipoResiduo::vigente)
+                    .anyMatch(t -> t.name().equals(s.intercambioPor()));
+            boolean historicaSinCambios = anterior != null
+                    && !TipoResiduo.OTROS.name().equals(s.intercambioPor())
+                    && s.intercambioPor().equals(anterior.intercambioPor());
             if (s.intercambioPor().isBlank() || (!catalogada && !historicaSinCambios)) {
                 errores.put("intercambioPor", "Selecciona un material válido como preferencia de intercambio.");
             }

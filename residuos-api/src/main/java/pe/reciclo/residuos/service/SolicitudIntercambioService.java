@@ -6,6 +6,7 @@ import pe.reciclo.residuos.dto.SolicitudCrear;
 import pe.reciclo.residuos.dto.SolicitudDecision;
 import pe.reciclo.residuos.dto.SolicitudRespuesta;
 import pe.reciclo.residuos.exception.ConflictoException;
+import pe.reciclo.residuos.exception.DatosIntercambioInvalidosException;
 import pe.reciclo.residuos.exception.RegistroNoEncontradoException;
 import pe.reciclo.residuos.exception.SolicitudNoEncontradaException;
 import pe.reciclo.residuos.model.EstadoPublicacion;
@@ -19,6 +20,7 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * Flujo de intercambio: USER solicita un material disponible y ADMIN acepta o rechaza.
@@ -46,6 +48,10 @@ public class SolicitudIntercambioService {
         if (residuo.estado(LocalDate.now(clock)) != EstadoPublicacion.DISPONIBLE) {
             // Un material no publicado se comporta como inexistente para el USER.
             throw new RegistroNoEncontradoException(datos.residuoId());
+        }
+        if (datos.ofrece() != null && !datos.ofrece().vigente()) {
+            throw new DatosIntercambioInvalidosException(Map.of("ofrece",
+                    "Selecciona un tipo de residuo vigente para tu propuesta."));
         }
         if (repository.existsByResiduoIdAndSolicitanteAndEstado(residuo.getId(), actor.usuario(),
                 EstadoSolicitud.PENDIENTE)) {

@@ -23,6 +23,8 @@ Consultas reenvía el JWT a Residuos, que aplica los permisos. El script de inic
 
 Las cuentas nuevas reciben USER. Empresa es un dato de texto del material que identifica quién lo ofrece. ADMIN no puede quitarse su propio rol, desactivarse ni eliminarse. Los controles administrativos de su cuenta están deshabilitados; puede cambiar su nombre en Mi perfil.
 
+El catálogo actual admite Plástico, Papel y cartón, Vidrio, Metal y Orgánico; las altas se registran en kg. «Otros» se retiró de los selectores y de las nuevas entradas de la API. Los registros históricos con `OTROS` se conservan y se muestran como «Categoría retirada»; al editarlos se debe elegir una categoría vigente. No se convierten cantidades ni se reclasifican datos automáticamente.
+
 ## Iniciar en Windows
 
 Requisitos: Java 21, Maven, Node.js compatible con Angular 20 (esta entrega usa Node 22) y Chrome para las pruebas. Desde la raíz, abre una terminal por API:

@@ -1101,8 +1101,6 @@ dd {
   --t-metal-bg: #eceef1;
   --t-organico: #4f7a2e;
   --t-organico-bg: #e9f2dd;
-  --t-otros: #7a5a86;
-  --t-otros-bg: #f1e9f4;
 }
 body {
   font-size: 14.5px;
@@ -1371,10 +1369,6 @@ td {
 .material-icon[data-tipo='ORGANICO'] {
   background: var(--t-organico-bg);
   color: var(--t-organico);
-}
-.material-icon[data-tipo='OTROS'] {
-  background: var(--t-otros-bg);
-  color: var(--t-otros);
 }
 
 /* Estados con punto indicador */
