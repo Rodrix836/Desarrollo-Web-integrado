@@ -16,6 +16,12 @@
   @if (cargando) {
     <p role="status">Cargando registro…</p>
   } @else if (!cargaFallida) {
+    @if (requiereReclasificacion) {
+      <p class="alert" role="status">
+        Este registro usa una categoría retirada. Selecciona un tipo de residuo vigente y revisa
+        la preferencia de intercambio antes de guardar.
+      </p>
+    }
     <form #f="ngForm" (ngSubmit)="guardar(f)" class="panel form-panel">
       <div class="form-section">
         <h2>El material</h2>
@@ -24,6 +30,7 @@
           <div>
             <label for="tipoResiduo">Tipo de residuo *</label
             ><select id="tipoResiduo" name="tipoResiduo" [(ngModel)]="datos.tipoResiduo" required>
+              <option value="" disabled>Selecciona el tipo de residuo</option>
               @for (t of tipos; track t.value) {
                 <option [value]="t.value">{{ t.label }}</option>
               }

@@ -21,7 +21,7 @@ Con Residuos detenido para evitar bloquear el JAR en Windows:
 mvn.cmd -f residuos-api/pom.xml clean verify
 ~~~
 
-La suite de Residuos contiene 53 pruebas. Usa H2, MockMvc y Mockito para verificar CRUD, JWT, roles, validaciones, decimal exacto y programación. Un Clock de prueba permite cruzar medianoche en Lima sin cambiar el reloj del equipo. Reportes en target/surefire-reports.
+La suite de Residuos contiene 70 pruebas. Usa H2, MockMvc y Mockito para verificar CRUD, JWT, roles, validaciones, catálogo vigente, decimal exacto y programación. Un Clock de prueba permite cruzar medianoche en Lima sin cambiar el reloj del equipo. Reportes en target/surefire-reports.
 
 ## Contrato HTTP
 
@@ -38,7 +38,7 @@ El ID es positivo y lo asigna H2. POST y PUT reciben JSON:
 
 | Campo | Regla |
 | --- | --- |
-| tipoResiduo | Obligatorio: PLASTICO, PAPEL_CARTON, VIDRIO, METAL, ORGANICO u OTROS. |
+| tipoResiduo | Obligatorio: PLASTICO, PAPEL_CARTON, VIDRIO, METAL u ORGANICO. |
 | cantidad | BigDecimal obligatorio mayor que cero. |
 | unidadMedida | kg para altas nuevas; una edición puede conservar la unidad histórica original. |
 | fecha | Dato histórico opcional en la solicitud. Al crear se asigna hoy en Lima si se omite; al editar se conserva la anterior si se omite. |
@@ -69,6 +69,8 @@ Los avisos contienen únicamente id, tipoResiduo, empresa, fechaPublicacion, est
 disponible=true expresa la intención de intercambiar. Para saber si se puede intercambiar ahora usa estadoPublicacion=DISPONIBLE. No hay un booleano persistido que quede desactualizado al pasar el día.
 
 ## Compatibilidad y persistencia
+
+`OTROS` está retirado del catálogo. POST y PUT de materiales, preferencias de intercambio habilitadas y nuevas propuestas rechazan ese valor con 400. El valor del enum se conserva únicamente para leer registros y solicitudes históricos de H2; no se borran ni se asignan a otra categoría. En Angular se muestran como «Categoría retirada» y se pide una categoría vigente al editarlos. Las preferencias históricas con `OTROS` también deben reemplazarse o deshabilitarse.
 
 La nueva columna fecha_publicacion es nullable. Hibernate con ddl-auto=update permite abrir la base H2 anterior y añadirla. Los registros antiguos habilitados sin fechaPublicacion continúan DISPONIBLE; al editarlos habilitados se exige seleccionar una fecha. fecha histórica permanece separada.
 

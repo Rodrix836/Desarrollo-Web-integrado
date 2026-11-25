@@ -319,7 +319,7 @@ Endpoints principales:
 
 Filtros de Residuos:
   estado=NO_PUBLICADO | PROGRAMADO | DISPONIBLE
-  preferencia=PLASTICO | PAPEL_CARTON | VIDRIO | METAL | ORGANICO | OTROS
+  preferencia=PLASTICO | PAPEL_CARTON | VIDRIO | METAL | ORGANICO
 
 Consultas en 8083:
   GET /api/consultas/residuos

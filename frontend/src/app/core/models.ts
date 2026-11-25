@@ -124,7 +124,6 @@ export const tipos = [
   { value: 'VIDRIO', label: 'Vidrio' },
   { value: 'METAL', label: 'Metal' },
   { value: 'ORGANICO', label: 'Orgánico' },
-  { value: 'OTROS', label: 'Otros' },
 ];
 export const estados = [
   { value: 'NO_PUBLICADO', label: 'No publicado' },
@@ -132,6 +131,7 @@ export const estados = [
   { value: 'DISPONIBLE', label: 'Disponible' },
 ];
 export function nombreTipo(value: string): string {
+  if (value === 'OTROS') return 'Categoría retirada';
   return tipos.find((t) => t.value === value)?.label ?? value;
 }
 export function nombreEstado(value: EstadoPublicacion): string {

@@ -74,6 +74,15 @@ class SolicitudesApiTest {
                 .andExpect(jsonPath("$.estado").value("PENDIENTE")).andReturn();
         return mapper.readTree(resultado.getResponse().getContentAsString()).get("id").asLong();
     }
+    @Test void unaPropuestaNuevaNoPuedeOfrecerOtros() throws Exception {
+        long material = crear(registro());
+        mvc.perform(post(BASE).header("Authorization", bearer("ana", "USER"))
+                        .contentType("application/json").content(mapper.createObjectNode()
+                                .put("residuoId", material).put("ofrece", "OTROS").toString()))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.errores.ofrece").isNotEmpty());
+        assertThat(solicitudes.count()).isZero();
+    }
+
     @Test void aceptarRetiraMaterialYRechazaLasOtrasSolicitudes() throws Exception {
         long material = crear(registro());
         long primera = solicitar(material, "ana");

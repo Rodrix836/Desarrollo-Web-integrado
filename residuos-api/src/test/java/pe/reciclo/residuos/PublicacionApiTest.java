@@ -72,6 +72,61 @@ class PublicacionApiTest {
         return mapper.readTree(response.getContentAsString()).get("id").asLong();
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = {"PLASTICO", "PAPEL_CARTON", "VIDRIO", "METAL", "ORGANICO"})
+    void losCincoTiposVigentesSeRegistranEnKg(String tipo) throws Exception {
+        long id = crear(registro().put("tipoResiduo", tipo).put("intercambioPor", tipo));
+        mvc.perform(get(BASE + "/" + id).header("Authorization", bearer("ADMIN")))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.tipoResiduo").value(tipo))
+                .andExpect(jsonPath("$.intercambioPor").value(tipo))
+                .andExpect(jsonPath("$.cantidad").value(2.75))
+                .andExpect(jsonPath("$.unidadMedida").value("kg"));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"tipoResiduo", "intercambioPor"})
+    void rechazaOtrosAlCrearYEditarSinModificarElRegistro(String campo) throws Exception {
+        long id = crear(registro());
+        var body = registro().put(campo, "OTROS");
+        mvc.perform(post(BASE).header("Authorization", bearer("ADMIN"))
+                        .contentType("application/json").content(body.toString()))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.errores." + campo).isNotEmpty());
+        mvc.perform(put(BASE + "/" + id).header("Authorization", bearer("ADMIN"))
+                        .contentType("application/json").content(body.toString()))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.errores." + campo).isNotEmpty());
+        assertThat(repository.count()).isEqualTo(1);
+        mvc.perform(get(BASE + "/" + id).header("Authorization", bearer("ADMIN")))
+                .andExpect(jsonPath("$.tipoResiduo").value("PLASTICO"))
+                .andExpect(jsonPath("$.intercambioPor").value("PAPEL_CARTON"));
+    }
+
+    @Test void historicosConOtrosSeLeenYSeReclasificanSinPerderCantidad() throws Exception {
+        var anterior = repository.saveAndFlush(new RegistroResiduo(new ResiduoSolicitud(
+                TipoResiduo.OTROS, new BigDecimal("2.75"), "kg", LocalDate.of(2026, 11, 16),
+                "Material anterior", "Acme", "OTROS", true, LocalDate.of(2026, 11, 16))));
+        long id = anterior.getId();
+        mvc.perform(get(BASE).header("Authorization", bearer("ADMIN")))
+                .andExpect(status().isOk()).andExpect(jsonPath("$[0].tipoResiduo").value("OTROS"));
+        mvc.perform(get(BASE + "/estadisticas").header("Authorization", bearer("ADMIN")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.porTipo[0].etiqueta").value("Categoría retirada"));
+        var body = registro().put("tipoResiduo", "OTROS").put("intercambioPor", "OTROS");
+        mvc.perform(put(BASE + "/" + id).header("Authorization", bearer("ADMIN"))
+                        .contentType("application/json").content(body.toString()))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errores.tipoResiduo").isNotEmpty())
+                .andExpect(jsonPath("$.errores.intercambioPor").isNotEmpty());
+        body.put("tipoResiduo", "VIDRIO").put("intercambioPor", "METAL");
+        mvc.perform(put(BASE + "/" + id).header("Authorization", bearer("ADMIN"))
+                        .contentType("application/json").content(body.toString()))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.tipoResiduo").value("VIDRIO"))
+                .andExpect(jsonPath("$.intercambioPor").value("METAL"))
+                .andExpect(jsonPath("$.cantidad").value(2.75))
+                .andExpect(jsonPath("$.unidadMedida").value("kg"));
+        assertThat(repository.count()).isEqualTo(1);
+    }
+
     @Test void futuroSoloSeAnunciaYSePublicaAlComenzarElDiaEnLima() throws Exception {
         long id = crear(registro());
         mvc.perform(get(BASE + "/" + id).header("Authorization", bearer("ADMIN")))

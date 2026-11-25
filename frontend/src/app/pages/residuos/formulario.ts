@@ -20,6 +20,7 @@ export class FormularioPage implements OnInit {
   errores: Record<string, string> = {};
   fechaOriginal: string | null = null;
   preferenciaHistorica = '';
+  requiereReclasificacion = false;
   datos: ResiduoInput = {
     tipoResiduo: 'PLASTICO',
     cantidad: 1,
@@ -37,10 +38,14 @@ export class FormularioPage implements OnInit {
     this.api.consultar(this.id).subscribe({
       next: (r) => {
         this.fechaOriginal = r.fechaPublicacion;
-        this.preferenciaHistorica = tipos.some((t) => t.value === r.intercambioPor)
-          ? ''
-          : r.intercambioPor;
+        this.preferenciaHistorica =
+          r.intercambioPor === 'OTROS' || tipos.some((t) => t.value === r.intercambioPor)
+            ? ''
+            : r.intercambioPor;
         this.datos = aResiduoInput(r);
+        this.requiereReclasificacion = r.tipoResiduo === 'OTROS' || r.intercambioPor === 'OTROS';
+        if (r.tipoResiduo === 'OTROS') this.datos.tipoResiduo = '';
+        if (r.intercambioPor === 'OTROS') this.datos.intercambioPor = '';
         if (r.disponible && !r.fechaPublicacion) this.datos.fechaPublicacion = hoyLima();
         this.cargando = false;
       },
